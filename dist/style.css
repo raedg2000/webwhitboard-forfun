@@ -1,0 +1,73 @@
+body {
+    overflow: hidden;
+    margin: 0px;
+    overflow: scroll; /* Scrollbar are always visible */
+    overflow: auto;   /* Scrollbar is displayed as it's needed */
+}
+
+* {
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: -moz-none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+.root {
+    display: flex;
+    flex-direction: column;
+}
+
+.box {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    background-color: #E0E0E0;
+    position: fixed;
+    top: 0;
+    width: 100vw;
+    z-index:100;
+    border-top: solid steelblue 10px ;
+    border-bottom: solid steelblue 10px ;
+}
+
+.drawingLayer_container{
+    z-index : 1;
+}
+
+.toolbox-item:hover {
+    background-color: #B0BEC5;
+    border-color: #78909C;
+    border-width: 1px;
+    cursor: pointer;
+}
+
+.fileToolBoxItem{
+    margin-left: 7px;
+    margin-right: 7px;
+}
+
+.clearCanvasToolBoxItem{
+    margin-left: 7px;
+    margin-right: 7px;
+}
+
+
+.toolbox-item-tools{
+    margin-left: 5px;
+}
+
+.toolbox-item-selected{
+    background-color: #B0BEC5;
+    border: black;
+    border-bottom-width: 0px;
+    border-top-width: 0px;
+    border-left-width:0.5px;
+    border-right-width:0.5px;
+    border-style:solid;
+}
+
+.svgText{
+    font-weight:bold;
+    font-size :small;
+}
