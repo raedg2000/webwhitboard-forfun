@@ -173,15 +173,15 @@ export class PenToolBoxItem extends ToolBoxItem implements IEventHandler {
             L ${topCenter.x -7} ${buttomLeftCylinder.y + 37} 
            `;
             
-            let penThicknessExpander = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            penThicknessExpander.id = `penThicknessExpander#${this.id.split('#')[1]}`;
-            penThicknessExpander.setAttribute('d', pathString);
-            penThicknessExpander.setAttribute('stroke', `transparent`);
-            penThicknessExpander.setAttribute('stroke-width', '0.5');
-            penThicknessExpander.setAttribute('fill', `Gray`);
-            penThicknessExpander.setAttribute('style', `pointer-events: auto`);
-            penThicknessExpander.dataset.enabled = 'false';
-            penThicknessExpander.addEventListener('mouseup', (event) =>{
+            let penMenuExpander = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            penMenuExpander.id = `penMenuExpander#${this.id.split('#')[1]}`;
+            penMenuExpander.setAttribute('d', pathString);
+            penMenuExpander.setAttribute('stroke', `transparent`);
+            penMenuExpander.setAttribute('stroke-width', '0.5');
+            penMenuExpander.setAttribute('fill', `Gray`);
+            penMenuExpander.setAttribute('style', `pointer-events: auto`);
+            penMenuExpander.dataset.enabled = 'false';
+            penMenuExpander.addEventListener('mouseup', (event) =>{
                 event.stopPropagation();
                 let tempElement = event.currentTarget as SVGMPathElement;
                 if (tempElement && tempElement.dataset.enabled === 'true' && this._settings && this.isSelected){
@@ -194,22 +194,22 @@ export class PenToolBoxItem extends ToolBoxItem implements IEventHandler {
                     //
                 }
             });
-            penShape.appendChild(penThicknessExpander);
+            penShape.appendChild(penMenuExpander);
            
         }
     }
 
     enable(id : string, enable: boolean){
-        let penThicknessExpanderId = `penThicknessExpander#${this.id.split('#')[1]}`;
+        let penThicknessExpanderId = `penMenuExpander#${this.id.split('#')[1]}`;
         let tempElement: any = document.getElementById(penThicknessExpanderId);
-        let penThicknessExpander = tempElement as SVGPathElement;
-        if (penThicknessExpander){
-            penThicknessExpander.dataset.enabled = enable.toString();
+        let penMenuExpander = tempElement as SVGPathElement;
+        if (penMenuExpander){
+            penMenuExpander.dataset.enabled = enable.toString();
             if (enable){
-                penThicknessExpander.setAttribute('fill', `black`);
+                penMenuExpander.setAttribute('fill', `black`);
             }
             else{
-                penThicknessExpander.setAttribute('fill', `Gray`);
+                penMenuExpander.setAttribute('fill', `Gray`);
             }
         }
     }

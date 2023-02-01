@@ -1,5 +1,7 @@
 
 
+import { EventAggregator } from './EventAggregator';
+import { PenMenuSettingsOpenEvent } from './PenDrawingEvents';
 import {Point} from './Point';
 import {ToolBoxItem} from './ToolBoxItem'
 import { ToolBoxItemType } from './ToolBoxItemType';
@@ -92,12 +94,41 @@ export class EraserToolBoxItem extends ToolBoxItem{
             rect6.setAttribute('y',  `${topLeft.y}`);
             rect6.setAttribute('stroke', `transparent`);
             rect6.setAttribute('stroke-width', '0.5');
-            rect6.setAttribute('height',  `27`);
+            rect6.setAttribute('height',  `40`);
             rect6.setAttribute('width',  `20`);
             rect6.setAttribute('fill',  `#FFA726`);
             eraserShape.appendChild(rect6);
 
-                      
+            let topCenter = new Point(this._width /2, this._height/10);
+            let y = topCenter.y + 65;
+            let pathString = ` M ${topCenter.x -7} ${y + 37} 
+            L ${topCenter.x} ${y + 45} 
+            L ${topCenter.x + 7} ${y + 37} 
+            L ${topCenter.x -7} ${y + 37} 
+           `;
+            
+            let eraserMenuExpander = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            eraserMenuExpander.id = `penMenuExpander#${this.id.split('#')[1]}`;
+            eraserMenuExpander.setAttribute('d', pathString);
+            eraserMenuExpander.setAttribute('stroke', `transparent`);
+            eraserMenuExpander.setAttribute('stroke-width', '0.5');
+            eraserMenuExpander.setAttribute('fill', `Gray`);
+            eraserMenuExpander.setAttribute('style', `pointer-events: auto`);
+            eraserMenuExpander.dataset.enabled = 'false';
+            eraserMenuExpander.addEventListener('mouseup', (event) =>{
+                event.stopPropagation();
+                let tempElement = event.currentTarget as SVGMPathElement;
+                if (tempElement && tempElement.dataset.enabled === 'true' && this._settings && this.isSelected){
+                    if (this._settings.thickness === 0){
+                        this._settings.thickness = 1;
+                    }
+                   
+                    // let eraserMenuSettingsOpenEvent = new EraserMenuSettingsOpenEvent(this.id, this._settings, this.divElement?.getBoundingClientRect());
+                    // EventAggregator.publish(penMenuSettingsOpenEvent);
+                    //
+                }
+            });
+            eraserShape.appendChild(eraserMenuExpander);
             this._svgElement.appendChild(eraserShape);
         }
     }

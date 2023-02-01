@@ -16,6 +16,8 @@ import { BaseRuler, RulersType } from "./BaseRuler";
 import { Ruler } from "./Ruler";
 import { Protractor } from "./Protractor";
 import { SetSquare } from "./SetSquare";
+import { CompassMenuSettingsOpenEvent, CompassSelectedEvent, CompassSettingsChangedEvent } from "./CompassDrawingEvents";
+import { CompassMenu } from "./CompassMenu";
 
 
 export class Whiteboard implements IEventHandler{
@@ -29,6 +31,7 @@ export class Whiteboard implements IEventHandler{
     private _activeCompass : any;
 
     private _penMenu : PenMenu | null = null;
+    private _compassMenu : CompassMenu | null = null;
 
     constructor(){
        
@@ -49,6 +52,10 @@ export class Whiteboard implements IEventHandler{
        
         EventAggregator.subscribe('EraserSelectedEvent', this);
         EventAggregator.subscribe('EraserDrawingCompletedEvent', this);
+
+        EventAggregator.subscribe('CompassSelectedEvent', this);
+        EventAggregator.subscribe('CompassMenuSettingsOpenEvent', this);
+        EventAggregator.subscribe('CompassSettingsChangedEvent', this);
 
         EventAggregator.subscribe('RemoveRulerEvent', this);
         EventAggregator.subscribe('AddRulerEvent', this); 
@@ -252,6 +259,25 @@ export class Whiteboard implements IEventHandler{
             case 'EraserDrawingCompletedEvent':
                 this.handlEraserDrawingCompletedEvent(eventData as EraserDrawingCompletedEvent)
                 break;
+
+            case 'CompassMenuSettingsOpenEvent' :{
+                    let compassMenuSettingsOpenEvent = eventData as CompassMenuSettingsOpenEvent;
+                    if (this._penMenu !== null){
+                        document.body.removeChild(this._penMenu.dialogElement);
+                    }
+                    this._compassMenu = new CompassMenu(compassMenuSettingsOpenEvent.id, compassMenuSettingsOpenEvent.settings, compassMenuSettingsOpenEvent.boundingRect)
+                    document.body.appendChild(this._compassMenu.dialogElement);
+                }
+                break;
+
+            case 'CompassSettingsChangedEvent': 
+                if (this._activePen !== null && this._activePen instanceof Pen) {
+                    let compassSettingsChangedEvent = eventData as CompassSettingsChangedEvent;
+                    // if (this._activePen.id === penSettingsChangedEvent.penId ){
+                    //     this._activePen.settings = penSettingsChangedEvent.settings;
+                    // }
+                }
+            break;
 
             case 'AddRulerEvent' :
                 this.handleAddRulerEvent(eventData as AddRulerEvent)

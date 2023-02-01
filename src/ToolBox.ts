@@ -4,7 +4,7 @@ import { BasePenSettings } from "./BasePenSettings";
 import { ToolBoxItemType } from "./ToolBoxItemType";
 import { ToolBoxItem } from "./ToolBoxItem";
 import { PenToolBoxItem} from "./PenToolboxItem";
-import { CompassToolboxItem } from "./CompassToolboxItem";
+import { CompassToolBoxItem } from "./CompassToolboxItem";
 import { EraserToolBoxItem } from "./EraserToolBoxItem";
 import { SaveFileToolboxItem } from "./SaveFileToolboxItem";
 import { OpenFileToolboxItem } from "./OpenFileToolboxItem";
@@ -16,6 +16,7 @@ import { ClearCanvasDrawingEvent } from "./ClearCanavasDrawingEvent";
 import { EraserSelectedEvent } from "./EraserDrawingEvents";
 import { ToolBoxPointerSelectedEvent } from "./ToolboxPointerSelectedEvent";
 import { AddRulerEvent, RemoveRulerEvent } from "./RulerDrawingEvents";
+import { CompassSelectedEvent } from "./CompassDrawingEvents";
 
 
 export class ToolBox{
@@ -268,24 +269,33 @@ export class ToolBox{
 
     private initializeCompass(id : string):void{
 
-        let compass = new CompassToolboxItem(id);
+        let settings = new BaseCompassSettings('#000000', 1);
+        let compass = new CompassToolBoxItem(id, settings);
+        compass.isSelected = false;
         this._toolboxItems.set(id, compass);
+        compass.drawPenSVG();
         compass.divElement?.addEventListener(`click`, (event) =>{
             if (event.currentTarget){
                 
                 let clickedElement = event.currentTarget as HTMLElement;
                  let toolboxItemId = `svg-compass#${clickedElement.id.split('#')[1]}`
-                let compassToolBoxItem = this._toolboxItems.get(toolboxItemId);
-                if (compassToolBoxItem ){
-                    if (!compassToolBoxItem.isSelected){
-                        compassToolBoxItem.divElement?.classList.add(ToolBoxItem.hoverSelectedClass);
+                let item = this._toolboxItems.get(toolboxItemId);
+                if (item ){
+                    if (!item.isSelected){
+                        item.divElement?.classList.add(ToolBoxItem.hoverSelectedClass);
                     }
                     else{
-                        compassToolBoxItem.divElement?.classList.remove(ToolBoxItem.hoverSelectedClass);
+                        item.divElement?.classList.remove(ToolBoxItem.hoverSelectedClass);
                     }
 
-                    compassToolBoxItem.isSelected = !compassToolBoxItem.isSelected;
-                    //Raise Event 
+                    item.isSelected = !item.isSelected;
+                   
+                    let compassToolBoxItem = item as CompassToolBoxItem;
+                    compassToolBoxItem.enable(item.id, item.isSelected)
+                   
+                    //Raise Event
+                    let compassSelectedEvent = new CompassSelectedEvent(toolboxItemId, settings);
+                    EventAggregator.publish(compassSelectedEvent);
                 }
             }
         });
