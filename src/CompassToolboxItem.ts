@@ -45,7 +45,7 @@ export class CompassToolBoxItem extends ToolBoxItem{
             let topLeftRectangle = new Point(this._width/2 - 4, 5*this._height/10);
 
             let middleRectangle = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-            middleRectangle.id = `colorSection#${this.id.split('#')[1]}`;
+            middleRectangle.id = `compassColorSection#${this.id.split('#')[1]}`;
 
             middleRectangle.setAttribute('x',  `${topLeftRectangle.x}`);
             middleRectangle.setAttribute('y',  `${topLeftRectangle.y}`);
@@ -144,6 +144,7 @@ export class CompassToolBoxItem extends ToolBoxItem{
            
         }
     }
+    
     enable(id : string, enable: boolean){
         let penThicknessExpanderId = `compassMenuExpander#${this.id.split('#')[1]}`;
         let tempElement: any = document.getElementById(penThicknessExpanderId);
@@ -163,7 +164,7 @@ export class CompassToolBoxItem extends ToolBoxItem{
         let compassSettingsChangedEvent = eventData as CompassSettingsChangedEvent;
         if (this.id === compassSettingsChangedEvent.compassId){
             this.settings = compassSettingsChangedEvent.settings;
-            let compassMenuExpander = document.getElementById(`compassMenuExpander#${this.id.split('#')[1]}`);
+            let compassMenuExpander = document.getElementById(`compassColorSection#${this.id.split('#')[1]}`);
             compassMenuExpander?.setAttribute('fill', this.settings.color);
         }
     } 

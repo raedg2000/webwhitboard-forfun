@@ -75,13 +75,17 @@ export class Whiteboard implements IEventHandler{
                 document.body.removeChild(this._penMenu.dialogElement);
                 this._penMenu = null;
             }
+            if (!targetElement.id.includes('compassMenu') && this._compassMenu !== null){
+                document.body.removeChild(this._compassMenu.dialogElement);
+                this._penMenu = null;
+            }
             if (targetElement.id === 'whiteboard_canvas#1'){ 
                 if ((event.pointerType !== 'mouse'  || (event.pointerType === 'mouse' && event.button === 0)) && this._activePen !== null){
                     document.body.style.touchAction ='none';
                     event.preventDefault();
                     event.stopPropagation();
                     if (this._activePen instanceof Pen){
-                    this._activePen.OnMouseDown(this.mapMousePositionToCanvas(event.clientX, event.clientY))
+                        this._activePen.OnMouseDown(this.mapMousePositionToCanvas(event.clientX, event.clientY))
                     }
                     else if (this._activePen instanceof Eraser){
                         this._activePen.OnMouseDown(this.mapMousePositionToCanvas(event.clientX, event.clientY))
@@ -158,6 +162,10 @@ export class Whiteboard implements IEventHandler{
        this._activeCompass = null;
     }
 
+    private handleCompassSelectedEvent(eventData : CompassSelectedEvent){
+
+    }
+    
     private handleEraserSelectedEvent(eventData: EraserSelectedEvent) : void{
         if (this._activePen !== null){
             this._activePen.dispose();
@@ -260,6 +268,11 @@ export class Whiteboard implements IEventHandler{
                 this.handlEraserDrawingCompletedEvent(eventData as EraserDrawingCompletedEvent)
                 break;
 
+                
+            case 'CompassSelectedEvent' :
+                this.handleCompassSelectedEvent(eventData as CompassSelectedEvent)
+                break;
+
             case 'CompassMenuSettingsOpenEvent' :{
                     let compassMenuSettingsOpenEvent = eventData as CompassMenuSettingsOpenEvent;
                     if (this._penMenu !== null){
@@ -271,13 +284,13 @@ export class Whiteboard implements IEventHandler{
                 break;
 
             case 'CompassSettingsChangedEvent': 
-                if (this._activePen !== null && this._activePen instanceof Pen) {
+                if (this._activeCompass !== null && this._activeCompass) {
                     let compassSettingsChangedEvent = eventData as CompassSettingsChangedEvent;
                     // if (this._activePen.id === penSettingsChangedEvent.penId ){
                     //     this._activePen.settings = penSettingsChangedEvent.settings;
                     // }
                 }
-            break;
+                break;
 
             case 'AddRulerEvent' :
                 this.handleAddRulerEvent(eventData as AddRulerEvent)
