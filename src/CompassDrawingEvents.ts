@@ -79,3 +79,19 @@ export class CompassMenuSettingsOpenEvent extends BaseDrawingEvent{
         return this._boundingRect;
     }
 }
+
+
+export class RemoveCompassEvent extends BaseDrawingEvent{
+
+    private _id : string;
+   
+    constructor(id: string){
+        super('RemoveCompassEvent');
+        this._id = id;
+        
+    }
+
+    get id():string{
+        return this._id;
+    }
+}

@@ -8,7 +8,7 @@ export class PenMenu{
     private _id : string;
     private _penId : string;
     private _penSettings : BasePenSettings;
-    private _divElement : HTMLDivElement;
+    private _divElement : HTMLDivElement;;
     private _boundingRect : DOMRect | undefined;
 
     constructor(id: string, settings: BasePenSettings, boundingRect: DOMRect | undefined){
@@ -17,11 +17,13 @@ export class PenMenu{
         this._penSettings = settings;
         this._boundingRect = boundingRect;
         this._divElement = this.constructPenMenuDiv(boundingRect);
+        document.body.appendChild(this._divElement );
     }
 
     get dialogElement(): HTMLDivElement{
         return this._divElement;
     }
+    
     
     private constructPenMenuDiv(boundingRect: DOMRect | undefined): HTMLDivElement{
         let dialog = document.createElement('div');
@@ -149,4 +151,9 @@ export class PenMenu{
         return dialog;
     }
 
+    dispose(){
+        if (this.dialogElement !== null){
+            document.body.removeChild(this.dialogElement);
+        }
+    }
 }

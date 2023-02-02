@@ -34,8 +34,7 @@ export class CompassToolBoxItem extends ToolBoxItem{
         this._settings = value;
     }
 
-      
-    drawPenSVG(){
+    drawCompassSVG(){
         if (this._svgElement){
             let compassShape = document.createElementNS("http://www.w3.org/2000/svg", "g");
             compassShape.id = `compassShape#${this.id.split('#')[1]}`;
@@ -146,8 +145,8 @@ export class CompassToolBoxItem extends ToolBoxItem{
     }
     
     enable(id : string, enable: boolean){
-        let penThicknessExpanderId = `compassMenuExpander#${this.id.split('#')[1]}`;
-        let tempElement: any = document.getElementById(penThicknessExpanderId);
+        let compassMenuExpanderId = `compassMenuExpander#${this.id.split('#')[1]}`;
+        let tempElement: any = document.getElementById(compassMenuExpanderId);
         let compassMenuExpander = tempElement as SVGPathElement;
         if (compassMenuExpander){
             compassMenuExpander.dataset.enabled = enable.toString();

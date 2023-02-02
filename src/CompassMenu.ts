@@ -2,7 +2,6 @@ import { BaseCompassSettings } from "./BaseCompassSettings";
 import { CompassSettingsChangedEvent } from "./CompassDrawingEvents";
 import { EventAggregator } from "./EventAggregator";
 
-
 export class CompassMenu{
 
     private _id : string;
@@ -17,6 +16,8 @@ export class CompassMenu{
         this._compassSettings = settings;
         this._boundingRect = boundingRect;
         this._divElement = this.constructPenMenuDiv(boundingRect);
+
+        document.body.appendChild(this._divElement);
     }
 
     get dialogElement(): HTMLDivElement{
@@ -149,4 +150,9 @@ export class CompassMenu{
         return dialog;
     }
 
+    dispose(){
+        if (this.dialogElement !== null){
+            document.body.removeChild(this.dialogElement);
+        }
+    }
 }

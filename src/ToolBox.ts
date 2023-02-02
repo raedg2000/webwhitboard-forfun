@@ -16,7 +16,7 @@ import { ClearCanvasDrawingEvent } from "./ClearCanavasDrawingEvent";
 import { EraserSelectedEvent } from "./EraserDrawingEvents";
 import { ToolBoxPointerSelectedEvent } from "./ToolboxPointerSelectedEvent";
 import { AddRulerEvent, RemoveRulerEvent } from "./RulerDrawingEvents";
-import { CompassSelectedEvent } from "./CompassDrawingEvents";
+import { CompassSelectedEvent, RemoveCompassEvent } from "./CompassDrawingEvents";
 
 
 export class ToolBox{
@@ -69,6 +69,7 @@ export class ToolBox{
         }
         
     }
+
     private initializeNewFile(id : string){
         let newFileBtn = new NewFileToolboxItem(id);        
         this._toolboxItems.set(id, newFileBtn);
@@ -273,7 +274,7 @@ export class ToolBox{
         let compass = new CompassToolBoxItem(id, settings);
         compass.isSelected = false;
         this._toolboxItems.set(id, compass);
-        compass.drawPenSVG();
+        compass.drawCompassSVG();
         compass.divElement?.addEventListener(`click`, (event) =>{
             if (event.currentTarget){
                 
@@ -294,82 +295,20 @@ export class ToolBox{
                     compassToolBoxItem.enable(item.id, item.isSelected)
                    
                     //Raise Event
-                    let compassSelectedEvent = new CompassSelectedEvent(toolboxItemId, settings);
-                    EventAggregator.publish(compassSelectedEvent);
+                    if (compassToolBoxItem.isSelected){
+                        let compassSelectedEvent = new CompassSelectedEvent(toolboxItemId, settings);
+                        EventAggregator.publish(compassSelectedEvent);
+                    }
+                    else{
+                        let removeCompassEvent = new RemoveCompassEvent(toolboxItemId);
+                        EventAggregator.publish(removeCompassEvent)
+
+
+
+                    }
                 }
             }
         });
        
     }
-
-   
-
-    // private eraser_clicked(event: MouseEvent): void {
-    //     if (event.currentTarget){
-    //         let clickedElement =event.currentTarget as HTMLElement;
-    //         let eraser = this._toolboxItems.get(clickedElement.id);
-    //         if (eraser && !eraser.isSelected){
-    //             this._toolboxItems.forEach( value =>{
-    //                 if (value.type === ToolBoxItemType.Pen ){
-    //                     value.isSelected = false;
-    //                 }
-    //             });
-
-    //             eraser.isSelected = true;
-    //             //Raise Event 
-    //         }
-    //     }
-    // }
-    
-    // private compass_clicked(event: MouseEvent): void {
-    //     if (event.currentTarget){
-    //         let clickedElement =event.currentTarget as HTMLElement;
-    //         let compass = this._toolboxItems.get(clickedElement.id);
-    //         if (compass){
-    //             compass.isSelected = !compass.isSelected;
-    //             //Raise Event 
-    //         }
-    //     }
-    // }
-    
-    // private ruler_clicked(event: MouseEvent): void {
-    //     if (event.currentTarget){
-    //         let clickedElement =event.currentTarget as HTMLElement;
-    //         let ruler = this._toolboxItems.get(clickedElement.id);
-    //         if (ruler){
-    //             ruler.isSelected = !ruler.isSelected;
-    //             //Raise Event 
-    //         }
-    //     }
-    // }
-   
-    // private openFile_clicked(event: MouseEvent): void {
-    //     if (event.currentTarget){
-    //         let clickedElement =event.currentTarget as HTMLElement;
-    //         let openFile = this._toolboxItems.get(clickedElement.id);
-    //         if (openFile){
-    //             //Raise Event 
-    //         }
-    //     }
-    // }
-
-    // private saveFile_clicked(event: MouseEvent): void {
-    //     if (event.currentTarget){
-    //         let clickedElement =event.currentTarget as HTMLElement;
-    //         let openFile = this._toolboxItems.get(clickedElement.id);
-    //         if (openFile){
-    //             //Raise Event 
-    //         }
-    //     }
-    // }
-
-    // private clear_clicked(event: MouseEvent): void {
-    //     if (event.currentTarget){
-    //         let clickedElement =event.currentTarget as HTMLElement;
-    //         let openFile = this._toolboxItems.get(clickedElement.id);
-    //         if (openFile){
-    //             //Raise Event 
-    //         }
-    //     }
-    // }
-}
+}7

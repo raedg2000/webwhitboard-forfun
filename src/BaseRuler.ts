@@ -1,6 +1,5 @@
 import { DrawingLayer } from "./DrawingLayer";
 import { Point } from "./Point";
-import { Ruler } from "./Ruler";
 
 
 export enum RulersType{
@@ -9,6 +8,12 @@ export enum RulersType{
     Protractor = 'Protractor'
 }
 
+export class DistanceToRuler{
+
+    constructor(public ruler : RulersType = RulersType.NormalRuler,
+                public side : string  = '',
+                public distance : number = 0){}
+}
 export abstract class BaseRuler{
 
     protected _angleOfRotation : number = 0;
@@ -31,6 +36,9 @@ export abstract class BaseRuler{
     protected _startPosition : Point | null = null;
 
     protected readonly _type: RulersType;
+
+    static readonly rulerShift = 2;
+    static readonly Ruler_Capture_Distance : number = 15;
 
     constructor(id: string, drawingLayer : DrawingLayer, width: number , height: number, type: RulersType){
         this._id = id;
@@ -79,6 +87,15 @@ export abstract class BaseRuler{
         svgRulerInstance.setAttribute('style', `position:absolute;z-index:${this._zIndex};top:${this._topLeftPostion.y}px;left:${this._topLeftPostion.x}px;pointer-events: auto;`);
        
         return svgRulerInstance;
+    }
+
+
+    abstract calculateDistanceToRuler(penPosition : Point):DistanceToRuler;
+
+    abstract mapPenPosition(distanceToRuler : DistanceToRuler, mousePosition: Point):Point ;
+
+    dispose(){
+        document.body.removeChild(this._svgRulerInstance);
     }
 
 }
