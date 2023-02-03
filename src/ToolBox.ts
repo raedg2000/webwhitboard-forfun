@@ -233,6 +233,7 @@ export class ToolBox{
         let penValue = ToolBoxItemType.Pen;
         let eraserValue = ToolBoxItemType.Eraser;
         let pointerValue = ToolBoxItemType.Pointer;
+        let compassValue = ToolBoxItemType.Compass;
         pen.divElement?.addEventListener(`click`, (event) =>{
             event.stopPropagation();
             if (event.currentTarget){
@@ -303,12 +304,38 @@ export class ToolBox{
                         let removeCompassEvent = new RemoveCompassEvent(toolboxItemId);
                         EventAggregator.publish(removeCompassEvent)
 
-
-
                     }
                 }
             }
         });
        
     }
+
+    resetSelection(){
+
+        let penValue = ToolBoxItemType.Pen;
+        let eraserValue = ToolBoxItemType.Eraser;
+        let pointerValue = ToolBoxItemType.Pointer;
+        let compassValue = ToolBoxItemType.Compass;
+
+        this._toolboxItems.forEach(value =>{
+           
+                value.isSelected = false;
+                value.divElement?.classList.remove(ToolBoxItem.hoverSelectedClass);
+                if (value.toolBoxItemType === penValue){
+                    let penToolBoxItem = value as PenToolBoxItem;
+                    penToolBoxItem.enable(value.id, value.isSelected)
+                }
+                else if (value.toolBoxItemType === eraserValue){
+                    let eraserToolBoxItem = value as EraserToolBoxItem;
+                    //eraserToolBoxItem.enable(value.id, value.isSelected)
+                }
+
+                else if (value.toolBoxItemType === compassValue){
+                    let compassToolBoxItem = value as CompassToolBoxItem;
+                    compassToolBoxItem.enable(value.id, value.isSelected)
+                }
+        });
+    }
+
 }7

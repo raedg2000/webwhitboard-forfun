@@ -13,12 +13,12 @@ export class Protractor extends BaseRuler implements IDispose{
         super(id, drawingLayer, 120/0.2645833, 120/0.2645833, RulersType.Protractor);
         this._strokeWidth = 2;
         this._radius = this._width/2 - 2*this._strokeWidth;
-        this._center =  new Point(this._width/2, this._height/2);
+        this._center =  new Point(this._width/2 , this._height/2 );
         this.buildRuler();
     }
 
     private buildRuler(){
-
+        this._svgRulerInstance.style.pointerEvents = 'none';
         let group = document.createElementNS("http://www.w3.org/2000/svg", "g");
         group.id = `parentgroup#${this._id.split('#')[1]}`;
         this._svgRulerInstance.appendChild(group);
@@ -29,7 +29,7 @@ export class Protractor extends BaseRuler implements IDispose{
         this.drawInnerCircle(group);
         this.drawMarkings(group);
 
-        this._svgRulerInstance.addEventListener('pointerdown', (event) =>{
+        circle.addEventListener('pointerdown', (event) =>{
             let pointerEvent = event as PointerEvent;
             pointerEvent.stopPropagation();
             pointerEvent.preventDefault();
@@ -44,11 +44,13 @@ export class Protractor extends BaseRuler implements IDispose{
             pointerEvent.preventDefault();
             if (pointerEvent.pointerType === 'mouse' && this._startDragging && pointerEvent.buttons === 1){
                 this._svgRulerInstance.style.cursor = 'move';
-                let x =   Number.parseFloat(this._svgRulerInstance.style.left)+ + pointerEvent.movementX;
-                let y =   Number.parseFloat(this._svgRulerInstance.style.top)+ + pointerEvent.movementY;
+                let x =   Number.parseFloat(this._svgRulerInstance.style.left)+ pointerEvent.movementX;
+                let y =   Number.parseFloat(this._svgRulerInstance.style.top)+  pointerEvent.movementY;
 
                 this._svgRulerInstance.style.left = x.toString();
                 this._svgRulerInstance.style.top = y.toString();
+
+                this._topLeftPostion = new Point(x, y);
             }
 
         });
@@ -221,14 +223,36 @@ export class Protractor extends BaseRuler implements IDispose{
     }
 
     calculateDistanceToRuler(penPosition : Point): DistanceToRuler{
-        return new DistanceToRuler(this.type, 'circle', Infinity);
+       
+        let center = new Point(this._topLeftPostion.x + this._width/2, this._topLeftPostion.y + this._width/2);
+        
+        let distance =  Math.abs(this._radius - Math.sqrt(Math.pow(penPosition.x - center.x , 2) + Math.pow(penPosition.y - center.y, 2)));
+        console.log(`dist : ${distance}`) 
+        return new DistanceToRuler(this.type, 'circle', distance);
     }
 
-    mapPenPosition(distanceToRuler: DistanceToRuler, mousePosition: Point): Point {
-        return new Point(0,0);
-    }
-    
-    dispose(): void {
+    mapPenPosition(distanceToRuler: DistanceToRuler, mousePosition: Point, strokeThickness: number = 1): Point {
+
+        let center = new Point(this._topLeftPostion.x + this._width/2, this._topLeftPostion.y + this._width/2);
+        let tx = (mousePosition.x - center.x );
+        let ty = (mousePosition.y - center.y );
+
+        let angle = Math.atan(Math.abs(ty / tx));
+        if (tx < 0 && ty > 0) {
+            angle = Math.PI - Math.abs(angle);
+        }
+        else if (tx < 0 && ty < 0) {
+            angle = Math.PI + Math.abs(angle);
+        }
+        else if (tx > 0 && ty < 0) {
+            angle = 2 * Math.PI - Math.abs(angle);
+        }
         
+        //console.log(tx, ty, settings.center, angle*180/Math.PI);
+        return new Point(
+            center.x + (this._radius+ strokeThickness / 2 + BaseRuler.Ruler_Shift) * Math.cos(angle),
+            center.y + (this._radius + strokeThickness / 2 + BaseRuler.Ruler_Shift) * Math.sin(angle)
+        );
     }
+
 }

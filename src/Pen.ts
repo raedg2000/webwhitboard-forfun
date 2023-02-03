@@ -3,7 +3,6 @@ import { DrawingLayer } from "./DrawingLayer";
 import { EventAggregator } from "./EventAggregator";
 import { IDispose } from "./IDispose";
 import { IMouseEventsHandler } from "./IMouseEventsHandler";
-import { IRuler } from "./IRuler";
 import { IMouseMoveEvent, IMouseLeftButtonDownEvent, IMouseLeftButtonUpEvent } from "./MouseEvents";
 import { PenDrawingCompletedEvent } from "./PenDrawingEvents";
 import { Point } from "./Point";
@@ -14,7 +13,6 @@ export class Pen implements IMouseMoveEvent, IMouseLeftButtonDownEvent, IMouseLe
     private _settings : BasePenSettings;
     private _startPosition: Point | null = null;
     private _lastPosition : Point| null  = null;
-    private _capturedObject : IRuler | null = null;
     private _drawingStarted : boolean = false;
     private _drawingLayer : DrawingLayer | null;
     private _line:Array<Point> = new Array<Point>();
@@ -30,7 +28,7 @@ export class Pen implements IMouseMoveEvent, IMouseLeftButtonDownEvent, IMouseLe
     }
 
     get settings() : BasePenSettings{
-        return this.settings;
+        return this._settings;
     }
 
     set settings(value : BasePenSettings){
@@ -89,7 +87,6 @@ export class Pen implements IMouseMoveEvent, IMouseLeftButtonDownEvent, IMouseLe
     }
 
     dispose(){
-        this._capturedObject = null;
         this._drawingLayer = null;
         this._line = [];
         this._startPosition = null;

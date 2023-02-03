@@ -76,7 +76,7 @@ export class Whiteboard implements IEventHandler{
     }
 
     private addPointerEvents():void{
-        document.body.addEventListener("pointerdown", (event) => {
+     document.body.addEventListener("pointerdown", (event) => {
             let target: any = event.target;
             let targetElement = target as HTMLCanvasElement;
             if (!targetElement.id.includes('penMenu') && this._penMenu !== null){
@@ -94,12 +94,12 @@ export class Whiteboard implements IEventHandler{
                     event.stopPropagation();
                     let mousePosition  = this.mapMousePositionToCanvas(event.clientX, event.clientY);
                     if (this._activePen instanceof Pen){
-                      
+                        let pen = this._activePen as Pen;
                         let result = PenRulerHelper.getRulerWithMinimumDistanceToPen(this._activeRulers, mousePosition);
                         if (result !== null){
                             let ruler = this._activeRulers.get(result.ruler);
                             if (ruler){
-                                //mousePosition = ruler.mapPenPosition(result, mousePosition);
+                                mousePosition = ruler.mapPenPosition(result, mousePosition, pen.settings.thickness);
                             }
                         }
                         this._activePen.OnMouseDown(mousePosition);
@@ -118,13 +118,14 @@ export class Whiteboard implements IEventHandler{
                 event.preventDefault();
                 event.stopPropagation();
                 if (this._activePen instanceof Pen && this._activePen.drawingStarted){
+                    let pen = this._activePen as Pen;
                     let mousePosition  = this.mapMousePositionToCanvas(event.clientX, event.clientY);
                     let result = PenRulerHelper.getRulerWithMinimumDistanceToPen(this._activeRulers, mousePosition);
                     //this._activePen.OnMouseMove(this.mapMousePositionToCanvas(event.clientX, event.clientY))
                     if (result !== null){
                         let ruler = this._activeRulers.get(result.ruler);
                         if (ruler){
-                            //mousePosition = ruler.mapPenPosition(result, mousePosition);
+                            mousePosition = ruler.mapPenPosition(result, mousePosition, pen.settings.thickness);
                         }
                     }
                     this._activePen.OnMouseMove(mousePosition);
@@ -184,9 +185,13 @@ export class Whiteboard implements IEventHandler{
 
     private handleHandleClearCanvasEvent(eventData: ClearCanvasDrawingEvent) : void{
        //remove rulers 
+       this._activeRulers.forEach((ruler)=> ruler.dispose());
        this._activeRulers.clear();
        //remove compass
+       this._activeCompass?.dispose();
        this._activeCompass = null;
+
+       this._toolbox.resetSelection();
     }
 
     private handleCompassSelectedEvent(eventData : AddCompassEvent){

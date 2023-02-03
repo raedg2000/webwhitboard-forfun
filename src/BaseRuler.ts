@@ -37,7 +37,7 @@ export abstract class BaseRuler{
 
     protected readonly _type: RulersType;
 
-    static readonly rulerShift = 2;
+    static readonly Ruler_Shift = 2;
     static readonly Ruler_Capture_Distance : number = 15;
 
     constructor(id: string, drawingLayer : DrawingLayer, width: number , height: number, type: RulersType){
@@ -92,7 +92,7 @@ export abstract class BaseRuler{
 
     abstract calculateDistanceToRuler(penPosition : Point):DistanceToRuler;
 
-    abstract mapPenPosition(distanceToRuler : DistanceToRuler, mousePosition: Point):Point ;
+    abstract mapPenPosition(distanceToRuler : DistanceToRuler, mousePosition: Point, strokeThickness : number ):Point ;
 
     dispose(){
         document.body.removeChild(this._svgRulerInstance);

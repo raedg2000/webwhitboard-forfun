@@ -4,7 +4,6 @@ import { EraserDrawingCompletedEvent } from "./EraserDrawingEvents";
 import { EventAggregator } from "./EventAggregator";
 import { IDispose } from "./IDispose";
 import { IMouseEventsHandler } from "./IMouseEventsHandler";
-import { IRuler } from "./IRuler";
 import { IMouseMoveEvent, IMouseLeftButtonDownEvent, IMouseLeftButtonUpEvent } from "./MouseEvents";
 import { Point } from "./Point";
 
@@ -13,7 +12,6 @@ export class Eraser implements IMouseMoveEvent, IMouseLeftButtonDownEvent, IMous
     private _settings : BaseEraserSettings;
     private _previousPosition: Point | null = null;
     private _lastPosition : Point| null  = null;
-    private _capturedObject : IRuler | null = null;
     private _erasingStarted : boolean = false;
     private _drawingLayer : DrawingLayer | null;
     private _line:Array<Point> = new Array<Point>();
@@ -147,7 +145,6 @@ export class Eraser implements IMouseMoveEvent, IMouseLeftButtonDownEvent, IMous
     }
 
     dispose(){
-        this._capturedObject = null;
         this._drawingLayer = null;
         this._line = [];
         this._previousPosition = null;

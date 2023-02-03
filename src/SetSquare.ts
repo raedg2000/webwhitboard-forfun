@@ -58,6 +58,7 @@ export class SetSquare extends BaseRuler implements IDispose{
 
                 this._svgRulerInstance.style.left = x.toString();
                 this._svgRulerInstance.style.top = y.toString();
+                this._topLeftPostion = new Point(x, y);
             }
 
         });
@@ -303,11 +304,7 @@ export class SetSquare extends BaseRuler implements IDispose{
         return new DistanceToRuler(this.type, 'sideAB', Infinity);
     }
 
-    mapPenPosition(distanceToRuler: DistanceToRuler, mousePosition: Point): Point {
+    mapPenPosition(distanceToRuler: DistanceToRuler, mousePosition: Point,  strokeThickness : number = 1): Point {
         return new Point(0,0);
-    }
-
-    dispose(): void {
-        
     }
 }
