@@ -8,7 +8,7 @@ import { Pen } from "./Pen";
 import { Point } from "./Point";
 import { ClearCanvasDrawingEvent } from "./ClearCanavasDrawingEvent";
 import { Eraser } from "./Eraser";
-import { EraserDrawingCompletedEvent, EraserSelectedEvent } from "./EraserDrawingEvents";
+import { EraserDrawingCompletedEvent, EraserMenuSettingsOpenEvent, EraserSelectedEvent, EraserSettingsChangedEvent } from "./EraserDrawingEvents";
 import { ToolBoxPointerSelectedEvent } from "./ToolboxPointerSelectedEvent";
 import { PenMenu } from "./PenMenu";
 import { AddRulerEvent, RemoveRulerEvent } from "./RulerDrawingEvents";
@@ -16,10 +16,11 @@ import { BaseRuler, RulersType } from "./BaseRuler";
 import { Ruler } from "./Ruler";
 import { Protractor } from "./Protractor";
 import { SetSquare } from "./SetSquare";
-import { CompassMenuSettingsOpenEvent, CompassSelectedEvent as AddCompassEvent, CompassSettingsChangedEvent, RemoveCompassEvent } from "./CompassDrawingEvents";
+import { CompassMenuSettingsOpenEvent, AddCompassEvent, CompassSettingsChangedEvent, RemoveCompassEvent } from "./CompassDrawingEvents";
 import { CompassMenu } from "./CompassMenu";
 import { Compass } from "./Compass";
 import { PenRulerHelper } from "./PenRulersHelper";
+import { EraserMenu } from "./EraserMenu";
 
 
 export class Whiteboard implements IEventHandler{
@@ -34,6 +35,7 @@ export class Whiteboard implements IEventHandler{
     private _activeCompass : Compass | null = null;;
 
     private _penMenu : PenMenu | null = null;
+    private _eraserMenu : EraserMenu | null  = null;
     private _compassMenu : CompassMenu | null = null;
 
     static getNewCounter():number{
@@ -59,8 +61,10 @@ export class Whiteboard implements IEventHandler{
        
         EventAggregator.subscribe('EraserSelectedEvent', this);
         EventAggregator.subscribe('EraserDrawingCompletedEvent', this);
+        EventAggregator.subscribe('EraserMenuSettingsOpenEvent', this);
+        EventAggregator.subscribe('EraserSettingsChangedEvent', this);
 
-        EventAggregator.subscribe('CompassSelectedEvent', this);
+        EventAggregator.subscribe('AddCompassEvent', this);
         EventAggregator.subscribe('CompassMenuSettingsOpenEvent', this);
         EventAggregator.subscribe('CompassSettingsChangedEvent', this);
         EventAggregator.subscribe('RemoveCompassEvent', this);
@@ -86,6 +90,10 @@ export class Whiteboard implements IEventHandler{
             if (!targetElement.id.includes('compassMenu') && this._compassMenu !== null){
                 this._compassMenu.dispose();
                 this._compassMenu = null;
+            }
+            if (!targetElement.id.includes('eraserMenu') && this._eraserMenu !== null){
+                this._eraserMenu.dispose();
+                this._eraserMenu = null;
             }
             if (targetElement.id === 'whiteboard_canvas#1'){ 
                 if ((event.pointerType !== 'mouse'  || (event.pointerType === 'mouse' && event.button === 0)) && this._activePen !== null){
@@ -176,6 +184,9 @@ export class Whiteboard implements IEventHandler{
         }
         if (this._drawingLayer !== null){
             this._activePen = new Pen(eventData.id, eventData.settings, this._drawingLayer);
+            if (this._drawingLayer.canvas){
+                 this._drawingLayer.canvas.style.cursor = 'crosshair';
+            }
         }
     }
 
@@ -209,6 +220,9 @@ export class Whiteboard implements IEventHandler{
         }
         if (this._drawingLayer !== null){
             this._activePen = new Eraser(eventData.settings, this._drawingLayer);
+            if (this._drawingLayer.canvas){
+                this._drawingLayer.canvas.style.cursor = 'crosshair';
+            }
         }
 
     }
@@ -221,6 +235,11 @@ export class Whiteboard implements IEventHandler{
         this._activePen?.dispose();
         this._activePen = null;
         document.body.style.touchAction ='auto';
+        if (this._drawingLayer !== null){
+            if (this._drawingLayer.canvas){
+                this._drawingLayer.canvas.style.cursor = 'auto';
+            }
+        }
     }
 
     private handleAddRulerEvent(eventData : AddRulerEvent){
@@ -318,7 +337,17 @@ export class Whiteboard implements IEventHandler{
             case 'EraserDrawingCompletedEvent':
                 this.handlEraserDrawingCompletedEvent(eventData as EraserDrawingCompletedEvent)
                 break;
-                
+            
+                EraserMenuSettingsOpenEvent
+            case 'EraserMenuSettingsOpenEvent' :{
+                    let eraserMenuSettingsOpenEvent = eventData as EraserMenuSettingsOpenEvent;
+                    if (this._eraserMenu !== null){
+                        this._eraserMenu.dispose();
+                        this._eraserMenu = null;
+                    }
+                    this._eraserMenu = new EraserMenu(eraserMenuSettingsOpenEvent.id, eraserMenuSettingsOpenEvent.settings, eraserMenuSettingsOpenEvent.boundingRect)
+                }
+                break;
             case 'AddCompassEvent' :
                 this.handleCompassSelectedEvent(eventData as AddCompassEvent)
                 break;
@@ -361,16 +390,22 @@ export class Whiteboard implements IEventHandler{
     reinitialize(){
         let title = `Untitled - ${Whiteboard.getNewCounter()}`;
         
-        //clear toolbox
-        //remove rulers and compass
         this._activePen?.dispose();
         this._activePen = null;
+
+        this._eraserMenu?.dispose();
+        this._eraserMenu = null;
+
+        this._penMenu?.dispose();
+        this._penMenu = null;
         
         this._activeCompass?.dispose();
         this._activeCompass = null;
 
         this.removeAllRules();
         this._drawingLayer?.clear();
+
+        this._toolbox.resetSelection();
     }
 }
 

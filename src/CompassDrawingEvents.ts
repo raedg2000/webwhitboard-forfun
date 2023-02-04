@@ -2,13 +2,13 @@ import { BaseCompassSettings } from './BaseCompassSettings';
 import {BaseDrawingEvent} from './BaseDrawingEvent';
 import { Point } from './Point';
 
-export class CompassSelectedEvent extends BaseDrawingEvent{
+export class AddCompassEvent extends BaseDrawingEvent{
 
     private _id : string;
     private _baseCompassSetting : BaseCompassSettings;
 
     constructor(id: string, compassSettings : BaseCompassSettings){
-        super('CompassSelectedEvent');
+        super('AddCompassEvent');
         this._id = id;
         this._baseCompassSetting = compassSettings;
     }

@@ -1,19 +1,20 @@
-import { BaseCompassSettings } from "./BaseCompassSettings";
+import { BaseEraserSettings, EraserShapeType } from "./BaseEraserSettings";
 import { CompassSettingsChangedEvent } from "./CompassDrawingEvents";
+import { EraserSettingsChangedEvent } from "./EraserDrawingEvents";
 import { EventAggregator } from "./EventAggregator";
 
-export class CompassMenu{
+export class EraserMenu{
 
     private _id : string;
     private _compassId : string;
-    private _compassSettings : BaseCompassSettings;
+    private _eraserSettings : BaseEraserSettings;
     private _divElement : HTMLDivElement;
     private _boundingRect : DOMRect | undefined;
 
-    constructor(id: string, settings: BaseCompassSettings, boundingRect: DOMRect | undefined){
+    constructor(id: string, settings: BaseEraserSettings, boundingRect: DOMRect | undefined){
         this._compassId = id;
-        this._id = `compassMenu#${id.split('#')[1]}`;
-        this._compassSettings = settings;
+        this._id = `eraserMenu#${id.split('#')[1]}`;
+        this._eraserSettings = settings;
         this._boundingRect = boundingRect;
         this._divElement = this.constructPenMenuDiv(boundingRect);
 
@@ -45,7 +46,7 @@ export class CompassMenu{
         let col1_1 = document.createElement('td');
         let label1_1 = document.createElement('label');
         label1_1.id = `label1_1-${this._id}`;
-        label1_1.innerText = 'Thickness';
+        label1_1.innerText = 'Width';
         col1_1.appendChild(label1_1);
 
         let col1_2 = document.createElement('td');
@@ -56,8 +57,8 @@ export class CompassMenu{
 
         rangeInput.type = 'range';
         rangeInput.min = '1';
-        rangeInput.max = '25';
-        rangeInput.value = this._compassSettings.thickness.toString();
+        rangeInput.max = `${BaseEraserSettings.MAX_WIDTH}`;
+        rangeInput.value = this._eraserSettings.width.toString();
         rangeInput.setAttribute('style', `width: 100px;`);
         col1_2.appendChild(rangeInput);
 
@@ -67,7 +68,7 @@ export class CompassMenu{
         let label1_3 = document.createElement('label');
         label1_3.id = `label1_3-${this._id}`;
 
-        label1_3.innerText = this._compassSettings.thickness.toString();
+        label1_3.innerText = this._eraserSettings.width.toString();
         col1_3.appendChild(label1_3);
 
         tr1.appendChild(col1_1);
@@ -85,19 +86,54 @@ export class CompassMenu{
         let label2_1 = document.createElement('label');
         label2_1.id = `label2_1-${this._id}`;
 
-        label2_1.innerText = 'Color';
+        label2_1.innerText = 'Shape';
         col2_1.appendChild(label2_1);
 
         let col2_2 = document.createElement('td');
+        col2_2.colSpan = 2;
         col2_2.id = `col2_2-${this._id}`;
 
-        let colorInput =  document.createElement('input');
-        colorInput.id = `colorInput-${this._id}`;
+        let div = document.createElement('div');
+        div.id = `div-${this._id}`;
+        div.className = "box1";
+        col2_2.appendChild(div);
 
-        colorInput.type = 'color';
-        colorInput.value = this._compassSettings.color;
-        colorInput.setAttribute('style', `width: 100px;`);
-        col2_2.appendChild(colorInput);
+        let div2_2 = document.createElement('div');
+        div2_2.id = `div2_2-${this._id}`;
+        div2_2.setAttribute("style", "margin-left: 20px;")
+        div.appendChild(div2_2);
+
+
+        let input2_1 = document.createElement('input');
+        input2_1.id = `input2_1-${this._id}`;
+        input2_1.type ='radio';
+        input2_1.checked = true;
+        input2_1.name = "radio"
+        div2_2.appendChild(input2_1);
+        
+        let img1 = document.createElement('img');
+        img1.id = `img1-${this._id}`;
+        img1.src = `./images/square.png`
+        div2_2.appendChild(img1);
+
+        
+        let div2_3 = document.createElement('div');
+        div2_3.id = `div2_3-${this._id}`;
+        div2_2.setAttribute("style", "margin-left:5px;")
+        div.appendChild(div2_3);
+
+        let input2_2 = document.createElement('input');
+        input2_2.id = `input2_2-${this._id}`;
+        input2_2.type ='radio';
+        input2_2.checked = false;
+        input2_2.name = "radio"
+        div2_3.appendChild(input2_2);
+       
+
+        let img2 = document.createElement('img');
+        img2.id = `img2-${this._id}`;
+        img2.src = `./images/circle.png`
+        div2_3.appendChild(img2);
 
         tr2.appendChild(col2_1);
         tr2.appendChild(col2_2);
@@ -123,28 +159,34 @@ export class CompassMenu{
         rangeInput.addEventListener('input', (event) =>{
             let input = event.target as HTMLInputElement;
             label1_3.innerText = input.value;
-            this._compassSettings.thickness = Number(input.value);
-            let compassSettingsChangedEvent = new CompassSettingsChangedEvent(this._compassId, this._compassSettings);
-            EventAggregator.publish(compassSettingsChangedEvent);
-        }
-        );
-
-        colorInput.addEventListener('input', (event) =>{
-            let input = event.target as HTMLInputElement;
-            this._compassSettings.color = input.value;
-            let compassSettingsChangedEvent = new CompassSettingsChangedEvent(this._compassId, this._compassSettings);
-            EventAggregator.publish(compassSettingsChangedEvent);
+            this._eraserSettings.width = Number(input.value);
+            let eraserSettingsChangedEvent = new EraserSettingsChangedEvent(this._compassId, this._eraserSettings);
+            EventAggregator.publish(eraserSettingsChangedEvent);
         });
 
+        input2_1.addEventListener('input', (event) =>{
+            let input = event.target as HTMLInputElement;
+            this._eraserSettings.eraserShape = EraserShapeType.Square;
+            let eraserSettingsChangedEvent = new EraserSettingsChangedEvent(this._compassId, this._eraserSettings);
+            EventAggregator.publish(eraserSettingsChangedEvent);
+        });
+
+        input2_2.addEventListener('input', (event) =>{
+          let input = event.target as HTMLInputElement;
+          this._eraserSettings.eraserShape = EraserShapeType.Circle;
+          let eraserSettingsChangedEvent = new EraserSettingsChangedEvent(this._compassId, this._eraserSettings);
+          EventAggregator.publish(eraserSettingsChangedEvent);
+      });
+
         resetBtn.addEventListener('click', (event) =>{
-            this._compassSettings.color = this._compassSettings.initialColor;
-            this._compassSettings.thickness = this._compassSettings.initialThickness;
+            this._eraserSettings.eraserShape = this._eraserSettings.initialEraseShape;
+            this._eraserSettings.width = this._eraserSettings.initialWidth;
 
-            rangeInput.value = this._compassSettings.thickness.toString();
-            colorInput.value = this._compassSettings.color;
+            rangeInput.value = this._eraserSettings.initialWidth.toString();
+            input2_1.checked = true;
 
-            let compassSettingsChangedEvent = new CompassSettingsChangedEvent(this._compassId, this._compassSettings);
-            EventAggregator.publish(compassSettingsChangedEvent);
+            let eraserSettingsChangedEvent = new EraserSettingsChangedEvent(this._compassId, this._eraserSettings);
+            EventAggregator.publish(eraserSettingsChangedEvent);
         });
         dialog.appendChild(table);
         return dialog;

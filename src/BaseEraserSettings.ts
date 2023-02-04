@@ -1,7 +1,3 @@
-export enum EraserType{
-    Circle,
-    Square
-}
 
 export enum EraserShapeType{
     Circle = 'circle',
@@ -10,17 +6,20 @@ export enum EraserShapeType{
 
 export class BaseEraserSettings{
 
-  
-    private _type: EraserType =  EraserType.Circle
+    
     private _width: number = 25; 
     private _eraserShape : EraserShapeType = EraserShapeType.Square ;
- 
-    get type():EraserType{
-        return this._type;
-    }
+    private _initialWidth : number = 25; 
+    private _initialEraserShape : EraserShapeType = EraserShapeType.Square ;
 
-    set type(value:EraserType){
-         this._type = value;
+    static readonly MAX_WIDTH = 50;
+
+    get initialEraseShape():EraserShapeType{
+        return this._initialEraserShape;
+    }
+ 
+    get initialWidth():number{
+        return this._initialWidth;
     }
 
     get width():number{

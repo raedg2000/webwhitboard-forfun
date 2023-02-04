@@ -67,7 +67,7 @@ export class Eraser implements IMouseMoveEvent, IMouseLeftButtonDownEvent, IMous
     drawClippingArea(context: CanvasRenderingContext2D, width: number, position : Point){
         
         if (this._settings.eraserShape === EraserShapeType.Circle) {
-            let radius = this._settings.width / 2;
+            let radius = width / 2;
             context.arc(position.x, position.y, radius, 0, Math.PI * 2, false); 
         }
         else {

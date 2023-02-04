@@ -16,7 +16,7 @@ import { ClearCanvasDrawingEvent } from "./ClearCanavasDrawingEvent";
 import { EraserSelectedEvent } from "./EraserDrawingEvents";
 import { ToolBoxPointerSelectedEvent } from "./ToolboxPointerSelectedEvent";
 import { AddRulerEvent, RemoveRulerEvent } from "./RulerDrawingEvents";
-import { CompassSelectedEvent, RemoveCompassEvent } from "./CompassDrawingEvents";
+import { AddCompassEvent, RemoveCompassEvent } from "./CompassDrawingEvents";
 
 
 export class ToolBox{
@@ -26,7 +26,7 @@ export class ToolBox{
     constructor(){
 
         this.initializeNewFile ('svg-newFile#1');
-        this.initializeOpenFile('svg-openFile#1');
+        // this.initializeOpenFile('svg-openFile#1');
         this.initializeSaveFile('svg-saveFile#1');
 
         this.initializeClear('svg-clearCanvas#1');
@@ -38,13 +38,13 @@ export class ToolBox{
         this.initializePen('svg-pen#3', '#FF0000', false); 
         this.initializePen('svg-pen#4', '#FFFF00', false); 
         this.initializePen('svg-pen#5', '#0000FF', false);
-        this.initializePen('svg-pen#6', '#F57C00', false); 
-        this.initializePen('svg-pen#7', '#4E342E', false);
-        this.initializePen('svg-pen#8', '#76FF03', false); 
-        this.initializePen('svg-pen#9', '#AA00FF', false);
-        this.initializePen('svg-pen#10', '#D81B60', false); 
-        this.initializePen('svg-pen#11', '#00695C', false);
-        this.initializePen('svg-pen#12', '#4E342E', false);
+        this.initializePen('svg-pen#6', '#4E342E', false);
+        //this.initializePen('svg-pen#7', '#F57C00', false); 
+        // this.initializePen('svg-pen#8', '#76FF03', false); 
+        // this.initializePen('svg-pen#9', '#AA00FF', false);
+        // this.initializePen('svg-pen#10', '#D81B60', false); 
+        // this.initializePen('svg-pen#11', '#00695C', false);
+        // this.initializePen('svg-pen#12', '#4E342E', false);
 
         this.initializeEraser('svg-pen#100');
 
@@ -120,15 +120,19 @@ export class ToolBox{
                 let toolboxItemId = `svg-pointer#${clickedElement.id.split('#')[1]}`
                 let pointerToolBoxItem = this._toolboxItems.get(toolboxItemId);
                 if (pointerToolBoxItem && !pointerToolBoxItem.isSelected){
-                    this._toolboxItems.forEach( value =>{
-                        if (value.toolBoxItemType === penValue ||  
-                            value.toolBoxItemType === eraserValue ||
-                            value.toolBoxItemType === toolBoxValue){
-                            value.isSelected = false;
-                            value.divElement?.classList.remove(ToolBoxItem.hoverSelectedClass);
-                            if (value.toolBoxItemType === penValue){
-                                let penToolBoxItem = value as PenToolBoxItem;
-                                penToolBoxItem.enable(value.id, value.isSelected)
+                    this._toolboxItems.forEach( item =>{
+                        if (item.toolBoxItemType === penValue ||  
+                            item.toolBoxItemType === eraserValue ||
+                            item.toolBoxItemType === toolBoxValue){
+                            item.isSelected = false;
+                            item.divElement?.classList.remove(ToolBoxItem.hoverSelectedClass);
+                            if (item.toolBoxItemType === penValue){
+                                let penToolBoxItem = item as PenToolBoxItem;
+                                penToolBoxItem.enable(item.id, item.isSelected)
+                            }
+                            if (item.toolBoxItemType === eraserValue){
+                                let eraserToolBoxItem = item as EraserToolBoxItem;
+                                eraserToolBoxItem.enable(item.id, item.isSelected)
                             }
                         }
                     }, false);
@@ -147,7 +151,7 @@ export class ToolBox{
 
         let settings = new BaseEraserSettings();
 
-        let eraser = new EraserToolBoxItem(id);        
+        let eraser = new EraserToolBoxItem(id, settings);        
         this._toolboxItems.set(id, eraser);
         eraser.drawEraserSVG();
         let penValue = ToolBoxItemType.Pen;
@@ -158,8 +162,8 @@ export class ToolBox{
                 document.body.style.touchAction ='none';
                 let clickedElement = event.currentTarget as HTMLElement;
                 let toolboxItemId = `svg-pen#${clickedElement.id.split('#')[1]}`
-                let eraserToolBoxItem = this._toolboxItems.get(toolboxItemId);
-                if (eraserToolBoxItem && !eraserToolBoxItem.isSelected){
+                let item = this._toolboxItems.get(toolboxItemId);
+                if (item && !item.isSelected){
                     this._toolboxItems.forEach( value =>{
                         if (value.toolBoxItemType === penValue ||  
                             value.toolBoxItemType === eraserValue ||
@@ -168,8 +172,12 @@ export class ToolBox{
                             value.divElement?.classList.remove(ToolBoxItem.hoverSelectedClass);
                         }
                     });
-                    eraserToolBoxItem.isSelected = true;
-                    eraserToolBoxItem.divElement?.classList.add(ToolBoxItem.hoverSelectedClass);
+                    item.isSelected = true;
+                    item.divElement?.classList.add(ToolBoxItem.hoverSelectedClass);
+                    if (item.toolBoxItemType === eraserValue){
+                        let eraserToolBoxItem = item as EraserToolBoxItem;
+                        eraserToolBoxItem.enable(item.id, item.isSelected)
+                    }
                     //Raise Event 
                     let eraserSelectedEvent = new EraserSelectedEvent(settings);
                     EventAggregator.publish(eraserSelectedEvent);
@@ -297,8 +305,8 @@ export class ToolBox{
                    
                     //Raise Event
                     if (compassToolBoxItem.isSelected){
-                        let compassSelectedEvent = new CompassSelectedEvent(toolboxItemId, settings);
-                        EventAggregator.publish(compassSelectedEvent);
+                        let addCompassEvent = new AddCompassEvent(toolboxItemId, settings);
+                        EventAggregator.publish(addCompassEvent);
                     }
                     else{
                         let removeCompassEvent = new RemoveCompassEvent(toolboxItemId);
@@ -318,22 +326,22 @@ export class ToolBox{
         let pointerValue = ToolBoxItemType.Pointer;
         let compassValue = ToolBoxItemType.Compass;
 
-        this._toolboxItems.forEach(value =>{
+        this._toolboxItems.forEach(item =>{
            
-                value.isSelected = false;
-                value.divElement?.classList.remove(ToolBoxItem.hoverSelectedClass);
-                if (value.toolBoxItemType === penValue){
-                    let penToolBoxItem = value as PenToolBoxItem;
-                    penToolBoxItem.enable(value.id, value.isSelected)
+                item.isSelected = false;
+                item.divElement?.classList.remove(ToolBoxItem.hoverSelectedClass);
+                if (item.toolBoxItemType === penValue){
+                    let penToolBoxItem = item as PenToolBoxItem;
+                    penToolBoxItem.enable(item.id, item.isSelected)
                 }
-                else if (value.toolBoxItemType === eraserValue){
-                    let eraserToolBoxItem = value as EraserToolBoxItem;
-                    //eraserToolBoxItem.enable(value.id, value.isSelected)
+                else if (item.toolBoxItemType === eraserValue){
+                    let eraserToolBoxItem = item as EraserToolBoxItem;
+                    eraserToolBoxItem.enable(item.id, item.isSelected)
                 }
 
-                else if (value.toolBoxItemType === compassValue){
-                    let compassToolBoxItem = value as CompassToolBoxItem;
-                    compassToolBoxItem.enable(value.id, value.isSelected)
+                else if (item.toolBoxItemType === compassValue){
+                    let compassToolBoxItem = item as CompassToolBoxItem;
+                    compassToolBoxItem.enable(item.id, item.isSelected)
                 }
         });
     }

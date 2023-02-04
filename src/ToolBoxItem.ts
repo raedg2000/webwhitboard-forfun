@@ -10,7 +10,7 @@ export class ToolBoxItem{
     protected _isSelected : boolean = false;  
     protected _svgElement : SVGAElement | undefined = undefined;
     protected _divElement : HTMLElement | null;
-    protected _settings : undefined | BasePenSettings | BaseCompassSettings;
+    protected _settings : undefined | BasePenSettings | BaseEraserSettings | BaseCompassSettings;
 
     static normalStyleClass: string = '';
     static hoverStyleClass: string = '';

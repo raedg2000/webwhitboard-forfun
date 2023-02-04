@@ -33,7 +33,7 @@ export class PenMenu{
 
         dialog.id = this._id;
         dialog.setAttribute('style', `position:absolute;z-index:20000; background-color:#EDF0F5;top:${top}px;
-                                      left:${left}px;width:220px; height:100px; 
+                                      left:${left}px;width:220px; height:130px; 
                                       border-radius: 6px;border-bottom: 2px; border-style: solid; border-color:#3A5795;
                                       box-shadow: 3px 3px 2px #3A5795;`);
     

@@ -1,30 +1,37 @@
-
-
+import { BaseEraserSettings } from './BaseEraserSettings';
+import { EraserMenuSettingsOpenEvent, EraserSettingsChangedEvent } from './EraserDrawingEvents';
 import { EventAggregator } from './EventAggregator';
+import { IEventHandler } from './IEventHandler';
 import { PenMenuSettingsOpenEvent } from './PenDrawingEvents';
 import {Point} from './Point';
 import {ToolBoxItem} from './ToolBoxItem'
 import { ToolBoxItemType } from './ToolBoxItemType';
 
-export class EraserToolBoxItem extends ToolBoxItem{
+export class EraserToolBoxItem extends ToolBoxItem implements IEventHandler{
 
     private _borderColor : string = '#000000'; // border color
     private _borderWidth : string = "1"; 
     private _width : number = 0;
     private _height : number = 0;
     private _maxThickness : number = 7;
-
-    constructor (id: string){
+    protected _settings : BaseEraserSettings;
+ 
+    constructor (id: string, settings: BaseEraserSettings){
         super(id, ToolBoxItemType.Eraser);
         this._width = Number(this._svgElement?.clientWidth);
         this._height = Number(this._svgElement?.clientHeight);
+        this._settings = settings;
+        EventAggregator.subscribe('EraserSettingsChangedEvent', this);
     }
 
-    get id() : string{
-        return this._id;
+    get settings() : BaseEraserSettings{
+        return this._settings;
     }
 
-   
+    set settings(value : BaseEraserSettings) {
+        this._settings = value;
+    }
+  
     drawEraserSVG(){
         if (this._svgElement ){
             let eraserShape = document.createElementNS("http://www.w3.org/2000/svg", "g");
@@ -108,7 +115,7 @@ export class EraserToolBoxItem extends ToolBoxItem{
            `;
             
             let eraserMenuExpander = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            eraserMenuExpander.id = `penMenuExpander#${this.id.split('#')[1]}`;
+            eraserMenuExpander.id = `eraserMenuExpander#${this.id.split('#')[1]}`;
             eraserMenuExpander.setAttribute('d', pathString);
             eraserMenuExpander.setAttribute('stroke', `transparent`);
             eraserMenuExpander.setAttribute('stroke-width', '0.5');
@@ -119,13 +126,13 @@ export class EraserToolBoxItem extends ToolBoxItem{
                 event.stopPropagation();
                 let tempElement = event.currentTarget as SVGMPathElement;
                 if (tempElement && tempElement.dataset.enabled === 'true' && this._settings && this.isSelected){
-                    if (this._settings.thickness === 0){
-                        this._settings.thickness = 1;
+                    if (this._settings.width === 0){
+                        this._settings.width = 1;
                     }
                    
-                    // let eraserMenuSettingsOpenEvent = new EraserMenuSettingsOpenEvent(this.id, this._settings, this.divElement?.getBoundingClientRect());
-                    // EventAggregator.publish(penMenuSettingsOpenEvent);
-                    //
+                    let eraserMenuSettingsOpenEvent = new EraserMenuSettingsOpenEvent(this.id, this._settings, this.divElement?.getBoundingClientRect());
+                    EventAggregator.publish(eraserMenuSettingsOpenEvent);
+                    
                 }
             });
             eraserShape.appendChild(eraserMenuExpander);
@@ -133,4 +140,25 @@ export class EraserToolBoxItem extends ToolBoxItem{
         }
     }
 
+    enable(id : string, enable: boolean){
+        let eraserMenuExpanderId = `eraserMenuExpander#${this.id.split('#')[1]}`;
+        let tempElement: any = document.getElementById(eraserMenuExpanderId);
+        let eraserMenuExpander = tempElement as SVGPathElement;
+        if (eraserMenuExpander){
+            eraserMenuExpander.dataset.enabled = enable.toString();
+            if (enable){
+                eraserMenuExpander.setAttribute('fill', `black`);
+            }
+            else{
+                eraserMenuExpander.setAttribute('fill', `Gray`);
+            }
+        }
+    }
+    handle(eventData:EraserSettingsChangedEvent):void{
+        let eraserSettingsChangedEvent = eventData as EraserSettingsChangedEvent;
+        if (this.id === eraserSettingsChangedEvent.eraserId){
+            this._settings = eraserSettingsChangedEvent.settings;
+          
+        }
+    }
 }

@@ -35,6 +35,7 @@ export class Protractor extends BaseRuler implements IDispose{
             pointerEvent.preventDefault();
             if (pointerEvent.pointerType === 'mouse' && pointerEvent.buttons === 1){
                 this._startDragging = true;
+                this._svgRulerInstance.style.cursor = 'grab';
             }
         });
 
@@ -43,7 +44,7 @@ export class Protractor extends BaseRuler implements IDispose{
             pointerEvent.stopPropagation();
             pointerEvent.preventDefault();
             if (pointerEvent.pointerType === 'mouse' && this._startDragging && pointerEvent.buttons === 1){
-                this._svgRulerInstance.style.cursor = 'move';
+                this._svgRulerInstance.style.cursor = 'grab';
                 let x =   Number.parseFloat(this._svgRulerInstance.style.left)+ pointerEvent.movementX;
                 let y =   Number.parseFloat(this._svgRulerInstance.style.top)+  pointerEvent.movementY;
 
@@ -73,7 +74,9 @@ export class Protractor extends BaseRuler implements IDispose{
             pointerEvent.stopPropagation();
             pointerEvent.preventDefault();
 
-            this._svgRulerInstance.style.cursor = 'pointer';
+            if (!this._startDragging){
+                this._svgRulerInstance.style.cursor = 'pointer';
+            }
 
          });
 
