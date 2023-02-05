@@ -21,6 +21,8 @@ import { CompassMenu } from "./CompassMenu";
 import { Compass } from "./Compass";
 import { PenRulerHelper } from "./PenRulersHelper";
 import { EraserMenu } from "./EraserMenu";
+import { NewWhiteboardEvent } from "./NewFileDrawingEvents";
+import { SaveWhiteboardEvent } from "./SaveFileDrawingEvents";
 
 
 export class Whiteboard implements IEventHandler{
@@ -73,6 +75,10 @@ export class Whiteboard implements IEventHandler{
         EventAggregator.subscribe('AddRulerEvent', this); 
 
         EventAggregator.subscribe('ClearCanvasDrawingEvent', this);
+        
+        //EventAggregator.subscribe('OpenExistingWhiteboardEvent', this);
+        EventAggregator.subscribe('NewWhiteboardEvent', this);
+        EventAggregator.subscribe('SaveWhiteboardEvent', this);
     }
 
     private initializeDrawingLayer(){
@@ -80,7 +86,7 @@ export class Whiteboard implements IEventHandler{
     }
 
     private addPointerEvents():void{
-     document.body.addEventListener("pointerdown", (event) => {
+        document.body.addEventListener("pointerdown", (event) => {
             let target: any = event.target;
             let targetElement = target as HTMLCanvasElement;
             if (!targetElement.id.includes('penMenu') && this._penMenu !== null){
@@ -353,7 +359,10 @@ export class Whiteboard implements IEventHandler{
                 break;
 
             case 'RemoveCompassEvent' :
-
+                if (this._activeCompass !== null){
+                    this._activeCompass.dispose();
+                    this._activeCompass = null;
+                }
                 break;
 
             case 'CompassMenuSettingsOpenEvent' :{
@@ -369,9 +378,7 @@ export class Whiteboard implements IEventHandler{
             case 'CompassSettingsChangedEvent': 
                 if (this._activeCompass !== null && this._activeCompass) {
                     let compassSettingsChangedEvent = eventData as CompassSettingsChangedEvent;
-                    // if (this._activePen.id === penSettingsChangedEvent.penId ){
-                    //     this._activePen.settings = penSettingsChangedEvent.settings;
-                    // }
+                    this._activeCompass.settings = compassSettingsChangedEvent.settings;
                 }
                 break;
 
@@ -381,6 +388,15 @@ export class Whiteboard implements IEventHandler{
 
             case 'RemoveRulerEvent':
                 this.handleRemoveRulerEvent(eventData as RemoveRulerEvent)
+                break;
+
+            case 'NewWhiteboardEvent' :
+                break;
+
+            case 'SaveWhiteboardEvent':
+                break;
+
+            case 'OpenExistingWhiteboardEvent':
                 break;
             
         }

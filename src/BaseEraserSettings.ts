@@ -37,4 +37,9 @@ export class BaseEraserSettings{
     set eraserShape(value : EraserShapeType){
         this._eraserShape = value;
     }
+
+    reset(){
+        this.width =  this.initialWidth ;
+        this.eraserShape = this._eraserShape;
+    }
 }

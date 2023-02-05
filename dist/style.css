@@ -57,6 +57,11 @@ body {
     margin-left: 5px;
 }
 
+.drawingLayer{
+    top : 0px;
+    left: 0px;
+}
+
 .toolbox-item-selected{
     background-color: #B0BEC5;
     border: black;
@@ -71,17 +76,6 @@ body {
     font-weight:bold;
     font-size :small;
 }
-
-.radioBtn{
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 25px;
-    width: 25px;
-    background-color: #eee;
-    border-radius: 50%;
-}
-
 
 .box1 {
     display: flex;

@@ -332,18 +332,21 @@ export class ToolBox{
                 item.divElement?.classList.remove(ToolBoxItem.hoverSelectedClass);
                 if (item.toolBoxItemType === penValue){
                     let penToolBoxItem = item as PenToolBoxItem;
+                    penToolBoxItem.settings.reset();
                     penToolBoxItem.enable(item.id, item.isSelected)
                 }
                 else if (item.toolBoxItemType === eraserValue){
                     let eraserToolBoxItem = item as EraserToolBoxItem;
+                    eraserToolBoxItem.settings.reset();
                     eraserToolBoxItem.enable(item.id, item.isSelected)
                 }
 
                 else if (item.toolBoxItemType === compassValue){
                     let compassToolBoxItem = item as CompassToolBoxItem;
+                    compassToolBoxItem.settings.reset();
                     compassToolBoxItem.enable(item.id, item.isSelected)
                 }
         });
     }
 
-}7
+}

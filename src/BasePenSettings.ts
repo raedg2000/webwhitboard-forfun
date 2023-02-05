@@ -34,4 +34,9 @@ export class BasePenSettings{
     set thickness(value:number){
          this._thickness = value;
     }
+
+    reset(){
+        this.color =  this._initialColor ;
+        this._thickness = this._initialThickness;
+    }
 }
