@@ -35,6 +35,10 @@ export abstract class BaseRuler{
     protected _startDragging : boolean = false;
     protected _startPosition : Point | null = null;
 
+    protected touchFingure1 : PointerEvent | undefined = undefined;
+    protected touchFingure2 : PointerEvent | undefined;
+    protected touchFingure1_IsCenter : boolean =  false;
+
     protected readonly _type: RulersType;
 
     static readonly Ruler_Shift = 2;
@@ -50,6 +54,7 @@ export abstract class BaseRuler{
         this._svgRulerInstance = this.createSVGRulerElement();
        
         document.body.appendChild(this._svgRulerInstance);
+        document.body.style.touchAction ='none';
     }
 
     get id():string{
@@ -94,6 +99,7 @@ export abstract class BaseRuler{
 
     abstract mapPenPosition(distanceToRuler : DistanceToRuler, mousePosition: Point, strokeThickness : number ):Point ;
 
+    
     dispose(){
         document.body.removeChild(this._svgRulerInstance);
     }

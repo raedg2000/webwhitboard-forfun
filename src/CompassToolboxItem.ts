@@ -45,7 +45,7 @@ export class CompassToolBoxItem extends ToolBoxItem{
 
             let middleRectangle = document.createElementNS("http://www.w3.org/2000/svg", "rect");
             middleRectangle.id = `compassColorSection#${this.id.split('#')[1]}`;
-
+            middleRectangle.setAttribute('style', `pointer-events: none`);
             middleRectangle.setAttribute('x',  `${topLeftRectangle.x}`);
             middleRectangle.setAttribute('y',  `${topLeftRectangle.y}`);
             middleRectangle.setAttribute('stroke', `transparent`);
@@ -61,6 +61,7 @@ export class CompassToolBoxItem extends ToolBoxItem{
             let x1 = this._width/15;
             let y1 = topLeftRectangle.y + this._height/10;
             let middleHorizontalLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            middleHorizontalLine.setAttribute('style', `pointer-events: none`);
             middleHorizontalLine.setAttribute('x1',  `${x1}`);
             middleHorizontalLine.setAttribute('y1',  `${y1}`);
             middleHorizontalLine.setAttribute('x2',  `${this._width - x1}`);
@@ -89,6 +90,7 @@ export class CompassToolBoxItem extends ToolBoxItem{
                                L ${topLeft.x} ${topLeft.y} 
                               `;
             let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute('style', `pointer-events: none`);
             path.setAttribute('d', pathString);
             path.setAttribute('stroke', '#71B1F5');
             path.setAttribute('stroke-width', this._borderWidth);
@@ -126,8 +128,9 @@ export class CompassToolBoxItem extends ToolBoxItem{
             compassMenuExpander.setAttribute('fill', `Gray`);
             compassMenuExpander.setAttribute('style', `pointer-events: auto`);
             compassMenuExpander.dataset.enabled = 'false';
-            compassMenuExpander.addEventListener('mouseup', (event) =>{
+            compassMenuExpander.addEventListener('mousedown', (event) =>{
                 event.stopPropagation();
+                event.preventDefault();
                 let tempElement = event.currentTarget as SVGMPathElement;
                 if (tempElement && tempElement.dataset.enabled === 'true' && this._settings && this.isSelected){
                     if (this._settings.thickness === 0){

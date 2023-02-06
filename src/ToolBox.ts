@@ -17,6 +17,7 @@ import { EraserSelectedEvent } from "./EraserDrawingEvents";
 import { ToolBoxPointerSelectedEvent } from "./ToolboxPointerSelectedEvent";
 import { AddRulerEvent, RemoveRulerEvent } from "./RulerDrawingEvents";
 import { AddCompassEvent, RemoveCompassEvent } from "./CompassDrawingEvents";
+import { RulersType } from "./BaseRuler";
 
 
 export class ToolBox{
@@ -39,7 +40,7 @@ export class ToolBox{
         this.initializePen('svg-pen#4', '#FFFF00', false); 
         this.initializePen('svg-pen#5', '#0000FF', false);
         this.initializePen('svg-pen#6', '#4E342E', false);
-        //this.initializePen('svg-pen#7', '#F57C00', false); 
+        // this.initializePen('svg-pen#7', '#F57C00', false); 
         // this.initializePen('svg-pen#8', '#76FF03', false); 
         // this.initializePen('svg-pen#9', '#AA00FF', false);
         // this.initializePen('svg-pen#10', '#D81B60', false); 
@@ -108,12 +109,14 @@ export class ToolBox{
     private initializePointer(id : string){
       
         let pointer = new ToolBoxItem(id, ToolBoxItemType.Pointer);        
-   
+        
         this._toolboxItems.set(id, pointer);
         let penValue = ToolBoxItemType.Pen;
         let eraserValue = ToolBoxItemType.Eraser;
-        let toolBoxValue = ToolBoxItemType.Pointer;
-        pointer.divElement?.addEventListener(`click`, (event) =>{
+        let pointerValue = ToolBoxItemType.Pointer;
+        let rulersValue = [ToolBoxItemType.Ruler , ToolBoxItemType.Protractor , ToolBoxItemType.SetSquare];
+
+        pointer.divElement?.addEventListener(`pointerdown`, (event) =>{
             
             if (event.currentTarget){
                 let clickedElement = event.currentTarget as HTMLElement;
@@ -123,7 +126,7 @@ export class ToolBox{
                     this._toolboxItems.forEach( item =>{
                         if (item.toolBoxItemType === penValue ||  
                             item.toolBoxItemType === eraserValue ||
-                            item.toolBoxItemType === toolBoxValue){
+                            item.toolBoxItemType === pointerValue){
                             item.isSelected = false;
                             item.divElement?.classList.remove(ToolBoxItem.hoverSelectedClass);
                             if (item.toolBoxItemType === penValue){
@@ -135,6 +138,12 @@ export class ToolBox{
                                 eraserToolBoxItem.enable(item.id, item.isSelected)
                             }
                         }
+                        else if (rulersValue.includes(item.toolBoxItemType)){
+                            item.isSelected = false;
+                            item.divElement?.classList.remove(ToolBoxItem.hoverSelectedClass);
+                            let removeRulerEvent = new RemoveRulerEvent(toolboxItemId, item.toolBoxItemType);
+                            EventAggregator.publish(removeRulerEvent)
+                        }
                     }, false);
                     
                     pointerToolBoxItem.isSelected = true;
@@ -145,6 +154,7 @@ export class ToolBox{
                 }   
             }
         });
+
     }
 
     private initializeEraser(id : string){
@@ -285,8 +295,11 @@ export class ToolBox{
         this._toolboxItems.set(id, compass);
         compass.drawCompassSVG();
         compass.divElement?.addEventListener(`click`, (event) =>{
-            if (event.currentTarget){
-                
+            
+            let target = event.target as HTMLDivElement;
+            if (target && target.id === id){
+                event.stopPropagation();
+                event.preventDefault();
                 let clickedElement = event.currentTarget as HTMLElement;
                  let toolboxItemId = `svg-compass#${clickedElement.id.split('#')[1]}`
                 let item = this._toolboxItems.get(toolboxItemId);
@@ -323,30 +336,41 @@ export class ToolBox{
 
         let penValue = ToolBoxItemType.Pen;
         let eraserValue = ToolBoxItemType.Eraser;
-        let pointerValue = ToolBoxItemType.Pointer;
         let compassValue = ToolBoxItemType.Compass;
 
         this._toolboxItems.forEach(item =>{
            
-                item.isSelected = false;
-                item.divElement?.classList.remove(ToolBoxItem.hoverSelectedClass);
-                if (item.toolBoxItemType === penValue){
-                    let penToolBoxItem = item as PenToolBoxItem;
-                    penToolBoxItem.settings.reset();
-                    penToolBoxItem.enable(item.id, item.isSelected)
-                }
-                else if (item.toolBoxItemType === eraserValue){
-                    let eraserToolBoxItem = item as EraserToolBoxItem;
-                    eraserToolBoxItem.settings.reset();
-                    eraserToolBoxItem.enable(item.id, item.isSelected)
-                }
+            item.isSelected = false;
+            item.divElement?.classList.remove(ToolBoxItem.hoverSelectedClass);
+            if (item.toolBoxItemType === penValue){
+                let penToolBoxItem = item as PenToolBoxItem;
+                penToolBoxItem.settings.reset();
+                penToolBoxItem.enable(item.id, item.isSelected)
+            }
+            else if (item.toolBoxItemType === eraserValue){
+                let eraserToolBoxItem = item as EraserToolBoxItem;
+                eraserToolBoxItem.settings.reset();
+                eraserToolBoxItem.enable(item.id, item.isSelected)
+            }
 
-                else if (item.toolBoxItemType === compassValue){
-                    let compassToolBoxItem = item as CompassToolBoxItem;
-                    compassToolBoxItem.settings.reset();
-                    compassToolBoxItem.enable(item.id, item.isSelected)
-                }
+            else if (item.toolBoxItemType === compassValue){
+                let compassToolBoxItem = item as CompassToolBoxItem;
+                compassToolBoxItem.settings.reset();
+                compassToolBoxItem.enable(item.id, item.isSelected)
+            }
         });
     }
 
+    resetPointerSelection(){
+        let pointerValue = ToolBoxItemType.Pointer;
+
+        this._toolboxItems.forEach(item =>{
+            if (item.toolBoxItemType === pointerValue){
+                item.isSelected = false;
+                item.divElement?.classList.remove(ToolBoxItem.hoverSelectedClass);
+                document.body.style.touchAction ='none';
+                return;
+            }
+        });
+    }
 }

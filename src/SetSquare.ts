@@ -42,7 +42,21 @@ export class SetSquare extends BaseRuler implements IDispose{
             let pointerEvent = event as PointerEvent;
             pointerEvent.stopPropagation();
             pointerEvent.preventDefault();
-            if (pointerEvent.pointerType === 'mouse' && pointerEvent.buttons === 1){
+           
+            if (pointerEvent.pointerType === 'touch' && document.body.style.touchAction ==='auto'){
+                document.body.style.touchAction ='none';
+            }
+            else if (pointerEvent.pointerType === 'touch' && document.body.style.touchAction ==='none'){
+                if(!this.touchFingure1){
+                    this.touchFingure1 = pointerEvent;
+                }
+                if (this.touchFingure1.pointerId != pointerEvent.pointerId){
+                    this.touchFingure2 = pointerEvent;
+                    return;
+                }
+            }
+            
+            if ((pointerEvent.pointerType !== 'mouse') || (pointerEvent.pointerType === 'mouse' && pointerEvent.buttons === 1)){
                 this._startDragging = true;
                 this._svgRulerInstance.style.cursor = 'grab';
             }
@@ -52,7 +66,18 @@ export class SetSquare extends BaseRuler implements IDispose{
             let pointerEvent = event as PointerEvent;
             pointerEvent.stopPropagation();
             pointerEvent.preventDefault();
-            if (pointerEvent.pointerType === 'mouse' && this._startDragging && pointerEvent.buttons === 1){
+
+            if ((pointerEvent.pointerType === 'touch')){
+                document.body.style.touchAction ='none';
+                if (this.touchFingure1 && this.touchFingure2 && this.touchFingure2.pointerId === pointerEvent.pointerId){
+                    this.touchFingure1_IsCenter = true;
+                    this.touchFingure2 = pointerEvent;
+                    this.RotateByTouch();
+                    return;
+                }
+            }
+
+            if ((pointerEvent.pointerType !== 'mouse') || (pointerEvent.pointerType === 'mouse' && this._startDragging && pointerEvent.buttons === 1)){
                 this._svgRulerInstance.style.cursor = 'grab';
                 let x =   Number.parseFloat(this._svgRulerInstance.style.left)+ + pointerEvent.movementX;
                 let y =   Number.parseFloat(this._svgRulerInstance.style.top)+ + pointerEvent.movementY;
@@ -189,6 +214,46 @@ export class SetSquare extends BaseRuler implements IDispose{
 
     }
    
+    private RotateByTouch () {
+
+        let x1 = Number(this.touchFingure1?.clientX) ;
+        let y1 = Number(this.touchFingure1?.clientY) ; 
+        let x2 = Number(this.touchFingure2?.clientX) ;
+        let y2 = Number(this.touchFingure2?.clientY) ;
+        
+        let Rx = x2 - x1;
+        let Ry = -(y2 - y1);
+        let angle = Math.round(Math.atan(Ry/Rx) * 180/ Math.PI);
+        if (Ry > 0 && Rx > 0)
+        {
+            angle = -1*angle;
+        }
+        else if ((Ry > 0 && Rx < 0) || (Ry < 0 && Rx < 0)){
+            angle = -1* (180 + angle);
+        }
+        else if (Ry < 0 && Rx > 0)
+        {
+            angle = -1*(360 + angle);
+        }
+        this._angleOfRotation = angle;
+
+        this._svgRulerInstance.style.transformBox = 'fill-box';
+        this._svgRulerInstance.style.transformOrigin ='center';
+        this._svgRulerInstance.style.transform = `rotate(${this._angleOfRotation}deg`;
+
+        if (this._svgAngleIndicator){
+            let metrics = this.measureText((-1*this._angleOfRotation).toString() + '°', this._defaultFontSize)
+            if (metrics){
+                this._svgAngleIndicator.setAttribute('x', `${this._width / 2 - metrics.width / 2}`);
+            }
+            this._svgAngleIndicator.style.transformBox = 'fill-box';
+            this._svgAngleIndicator.style.transformOrigin ='center';
+            this._svgAngleIndicator.style.transform = `rotate(${-1*this._angleOfRotation}deg`;
+            this._svgAngleIndicator.childNodes[0].nodeValue = (-1*this._angleOfRotation).toString() + '°';
+       
+        }
+    }
+
     drawAngleText (group : SVGElement, metrics: TextMetrics) {
 
         let y = this._pointB.y - 15/ 0.2645833  + metrics.fontBoundingBoxAscent/2;

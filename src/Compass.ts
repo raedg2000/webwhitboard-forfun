@@ -1,13 +1,16 @@
 
 
 import { BaseCompassSettings } from "./BaseCompassSettings";
+import { BaseDrawingEvent } from "./BaseDrawingEvent";
+import { CompassSettingsChangedEvent } from "./CompassDrawingEvents";
 import { DrawingLayer } from "./DrawingLayer";
 import { EventAggregator } from "./EventAggregator";
 import { IDispose } from "./IDispose";
+import { IEventHandler } from "./IEventHandler";
 import { IMouseEventsHandler } from "./IMouseEventsHandler";
 import { Point } from "./Point";
 
-export class Compass{
+export class Compass implements IEventHandler{
     
     static readonly MIN_RADIUS = 25/0.2645833;
     static readonly MAX_RADIUS = 200/0.2645833;
@@ -32,14 +35,11 @@ export class Compass{
     private _pencilColorBoxHeight : number = 16;
     private _pencilColorBoxStrokeColor: string = `black`;
     private _pencilColorBoxStrokeWidth:number = 0.5;
-    private _pencilWidth : number = 100;
+    private _pencilWidth : number = 90;
     private _pencilHeight : number = 100;
     private _compassRadiusLengthTextRectStrokeWidth : number = 1;
     private _compassRadiusLengthTextRectWidth : number = 80;
     private _compassRadiusLengthTextRectHeight : number = 40;
-
-    private _direction : boolean = false;
-    private _center : Point = new Point(0,0);
 
     private _compassPen : SVGElement;
     private _compassRadius : SVGLineElement;
@@ -87,7 +87,7 @@ export class Compass{
         this.defineCompassPenEvents();
         this.defineCompassCenterEvents();
         this.defineCompassRadiusEvents();
-        //add compass to the document body
+        EventAggregator.subscribe('CompassSettingsChangedEvent', this)
     }
 
     get id(): string{
@@ -194,8 +194,6 @@ export class Compass{
         centerImage.setAttribute('x',`${2*this._centerdiameter}`);
         centerImage.setAttribute('y',`${this._height- 2*this._centerdiameter}`);
         centerImage.style.pointerEvents = 'auto';
-
-        this._center = new Point(3*this._centerdiameter/2, this._height- this._centerdiameter );
 
         group.appendChild(centerImage);
 
@@ -334,7 +332,7 @@ export class Compass{
 
     private defineCompassRadiusEvents(){
          this._compassRadius.addEventListener('pointerdown',  (event) => {
-
+            document.body.style.touchAction ='none';
             if (!this._locked && (event.pointerType !== 'mouse'  || (event.pointerType === 'mouse' && event.button === 0))){
                 this._compassRadius.style.cursor = 'grab';
                 event.preventDefault();
@@ -348,7 +346,8 @@ export class Compass{
             let pointerEvent = event as PointerEvent;
             pointerEvent.stopPropagation();
             pointerEvent.preventDefault();
-            if (!this._locked && ((pointerEvent.pointerType === 'mouse'  && pointerEvent.buttons === 1)) && this.lineDragging){
+            document.body.style.touchAction ='none';
+            if (!this._locked && (event.pointerType !== 'mouse'  || (pointerEvent.pointerType === 'mouse'  && pointerEvent.buttons === 1)) && this.lineDragging){
                 this._compassRadius.style.cursor = 'grab';
 
                 this._topLeftPosition = new Point( this._topLeftPosition.x + pointerEvent.movementX, this._topLeftPosition.y + pointerEvent.movementY);
@@ -397,14 +396,12 @@ export class Compass{
                 y = Number(this._compassRadiusText.getAttribute('y')) + pointerEvent.movementY;
                 this._compassRadiusText.setAttribute('x',`${x}`);
                 this._compassRadiusText.setAttribute('y',`${y}`);
-
-                this._center = new Point(this._center.x + pointerEvent.movementX, this._center.y + pointerEvent.movementY);
             }
 
         });
         this._compassRadius.addEventListener('pointerup',  (event) => {
             let pointerEvent = event as PointerEvent;
-            
+            document.body.style.touchAction ='auto';
             pointerEvent.stopPropagation();
             pointerEvent.preventDefault();
 
@@ -436,12 +433,18 @@ export class Compass{
 
     private defineCompassRadiusTextRectEvents(){
         this._compassRadiusTextRect.addEventListener('pointerdown',  (event) => {
-
+            document.body.style.touchAction ='none';
             if (!this._locked && (event.pointerType !== 'mouse'  || (event.pointerType === 'mouse' && event.button === 0))){
                 this._compassRadiusTextRect.style.cursor = 'grab';
                 event.preventDefault();
                 event.stopPropagation();
                 this.indicatorDragging = true;
+            }
+            else if (this._locked){
+                event.preventDefault();
+                event.stopPropagation();
+                
+                this.handleClickEventToDrawOrRotate(event);
             }
 
         });
@@ -450,7 +453,8 @@ export class Compass{
             let pointerEvent = event as PointerEvent;
             pointerEvent.stopPropagation();
             pointerEvent.preventDefault();
-            if (!this._locked && ((pointerEvent.pointerType === 'mouse'  && pointerEvent.buttons === 1)) && this.indicatorDragging){
+            document.body.style.touchAction ='none';
+            if (!this._locked && (event.pointerType !== 'mouse'  || (pointerEvent.pointerType === 'mouse'  && pointerEvent.buttons === 1)) && this.indicatorDragging){
                 this._compassRadiusTextRect.style.cursor = 'grab';
 
                 this._topLeftPosition = new Point( this._topLeftPosition.x + pointerEvent.movementX, this._topLeftPosition.y + pointerEvent.movementY);
@@ -500,14 +504,13 @@ export class Compass{
                 y = Number(this._compassRadiusText.getAttribute('y')) + pointerEvent.movementY;
                 this._compassRadiusText.setAttribute('x',`${x}`);
                 this._compassRadiusText.setAttribute('y',`${y}`);
-
-                this._center = new Point(this._center.x + pointerEvent.movementX, this._center.y + pointerEvent.movementY);
             }
 
         });
+
         this._compassRadiusTextRect.addEventListener('pointerup',  (event) => {
             let pointerEvent = event as PointerEvent;
-            
+            document.body.style.touchAction ='auto';
             pointerEvent.stopPropagation();
             pointerEvent.preventDefault();
 
@@ -527,6 +530,7 @@ export class Compass{
             }
             
         });
+
         this._compassRadiusTextRect.addEventListener('pointerout',  (event) => {
             let pointerEvent = event as PointerEvent;
             pointerEvent.stopPropagation();
@@ -534,6 +538,11 @@ export class Compass{
             
             this._compassRadiusTextRect.style.cursor = 'auto';
         });
+
+        this._compassRadiusTextRect.addEventListener('wheel',  (event) => {
+            this.handleWheelEventToDrawOrRotate(event);
+        });
+        
   
     }
 
@@ -541,10 +550,17 @@ export class Compass{
         this._compassPen.addEventListener('pointerdown',  (event) => {
 
             if (!this._locked && (event.pointerType !== 'mouse'  || (event.pointerType === 'mouse' && event.button === 0))){
+                
                 this._compassPen.style.cursor = 'grab';
                 event.preventDefault();
                 event.stopPropagation();
                 this.pencilDragging = true;
+            }
+            else if (this._locked){
+                event.preventDefault();
+                event.stopPropagation();
+                
+                this.handleClickEventToDrawOrRotate(event);
             }
 
         });
@@ -553,9 +569,10 @@ export class Compass{
             let pointerEvent = event as PointerEvent;
             pointerEvent.stopPropagation();
             pointerEvent.preventDefault();
-            if (!this._locked && ((pointerEvent.pointerType === 'mouse'  && pointerEvent.buttons === 1)) && this.pencilDragging){
+            document.body.style.touchAction ='none';
+            if (!this._locked && (event.pointerType !== 'mouse'  || (pointerEvent.pointerType === 'mouse'  && pointerEvent.buttons === 1)) && this.pencilDragging){
                 this._compassPen.style.cursor = 'grab';
-
+                
                 let x1 = Number(this._compassRadius.getAttribute('x1')) ;
                 let y1 = Number(this._compassRadius.getAttribute('y1')) ;
 
@@ -612,11 +629,12 @@ export class Compass{
 
         this._compassPen.addEventListener('pointerup',  (event) => {
             let pointerEvent = event as PointerEvent;
-            
+            document.body.style.touchAction ='auto';
             pointerEvent.stopPropagation();
             pointerEvent.preventDefault();
 
             if (this.pencilDragging){
+                this.updateAngle();
                 this._compassPen.style.cursor = 'pointer';
             }
             this.pencilDragging = false;
@@ -640,18 +658,24 @@ export class Compass{
             this._compassPen.style.cursor = 'auto';
         });
   
+        this._compassPen.addEventListener('wheel',  (event) => {
+            this.handleWheelEventToDrawOrRotate(event);
+        });
     }
-
-
 
     private defineCompassCenterEvents(){
         this._compassCenter.addEventListener('pointerdown',  (event) => {
-
+            document.body.style.touchAction ='none';
             if (!this._locked && (event.pointerType !== 'mouse'  || (event.pointerType === 'mouse' && event.button === 0))){
                 this._compassCenter.style.cursor = 'grab';
                 event.preventDefault();
                 event.stopPropagation();
                 this.centerDragging = true;
+            }
+            else if (this._locked){
+                event.preventDefault();
+                event.stopPropagation();
+                this.handleClickEventToDrawOrRotate(event);
             }
 
         });
@@ -660,7 +684,7 @@ export class Compass{
             let pointerEvent = event as PointerEvent;
             pointerEvent.stopPropagation();
             pointerEvent.preventDefault();
-            if (!this._locked && ((pointerEvent.pointerType === 'mouse'  && pointerEvent.buttons === 1)) && this.centerDragging){
+            if (!this._locked && ((event.pointerType !== 'mouse'  || pointerEvent.pointerType === 'mouse'  && pointerEvent.buttons === 1)) && this.centerDragging){
                 this._compassCenter.style.cursor = 'grab';
 
                 let x1 = Number(this._compassRadius.getAttribute('x1')) + pointerEvent.movementX;
@@ -706,8 +730,6 @@ export class Compass{
                 this._compassRadiusTextRect.setAttribute('x',`${x}`);
                 this._compassRadiusTextRect.setAttribute('y',`${y}`);
 
-                this._center = new Point(this._center.x + pointerEvent.movementX, this._center.y + pointerEvent.movementY);
-
                 let fontSize = 12;
                 let radiusValue = `${(this._radius*0.02645833).toFixed(2)} cm`;
                 let metrics = this.measureText(radiusValue, fontSize);
@@ -723,12 +745,14 @@ export class Compass{
         });
 
         this._compassCenter.addEventListener('pointerup',  (event) => {
+            document.body.style.touchAction ='auto';
             let pointerEvent = event as PointerEvent;
             
             pointerEvent.stopPropagation();
             pointerEvent.preventDefault();
 
             if (this.centerDragging){
+                this.updateAngle();
                 this._compassCenter.style.cursor = 'pointer';
             }
             this.centerDragging = false;
@@ -753,166 +777,176 @@ export class Compass{
         });
   
         this._compassCenter.addEventListener('wheel',  (event) => {
-
-            event.preventDefault();
-            event.stopPropagation();
-        
-            if (this._locked && this.drawingBoxChecked) {        
-                let x1 = Number(this._compassRadius.getAttribute('x1')) ;
-                let y1 = Number(this._compassRadius.getAttribute('y1')) ;        
-                let x2 = Number(this._compassRadius.getAttribute('x2')) ;
-                let y2 = Number(this._compassRadius.getAttribute('y2')) ;
-
-                this._lastPosition = new Point(x2, y2);
-                let previousAngle = 0;
-                
-                if (this._angle < 0){
-                    previousAngle = 2*Math.PI -  this._angle*Math.PI/180;
-                }
-                else{
-                    previousAngle = this._angle*Math.PI/180;
-                }
-                
-                if (event.deltaY < 0){
-                    this._angle = -1* (this._angle + 1) % 360;;
-                }
-                else
-                {
-                    this._angle = (this._angle - 1) % 360;;
-                }
-                let newAngle = 0;
-                newAngle = this._angle*Math.PI/180;
-                if (this._angle < 0){
-                    newAngle = 2*Math.PI -  this._angle*Math.PI/180;
-                }
-                else{
-                    newAngle = this._angle*Math.PI/180;
-                }
-                let tx2_o = this._radius* Math.cos(previousAngle);
-                let ty2_o = this._radius* Math.sin(previousAngle);
-
-                let tx2_a = this._radius* Math.cos(newAngle);
-                let ty2_a = this._radius* Math.sin(newAngle);
-
-                let dx = tx2_o - tx2_a;
-                let dy = ty2_o - ty2_a;
-
-                console.log(`angle : ${this._angle} \n`)
-               
-
-                this._lastPosition = new Point(x2 - dx , y2 + dy);
-                console.log(`x: ${this._lastPosition.x}  y: ${this._lastPosition.y} \n`)
-                
-                this._compassRadius.setAttribute('x2',`${this._lastPosition.x}`);
-                this._compassRadius.setAttribute('y2',`${this._lastPosition.y}`);
-                
-                let x = Number(this._compassPen.getAttribute('x')) - dx;
-                let y = Number(this._compassPen.getAttribute('y')) + dy;
-
-                this._compassPen.setAttribute('x',`${x}`);
-                this._compassPen.setAttribute('y',`${y}`);
-
-                x = Number(this._compassRadiusTextRect.getAttribute('x')) - dx;
-                y = Number(this._compassRadiusTextRect.getAttribute('y')) + dy ;
-
-                this._compassRadiusTextRect.setAttribute('x',`${x}`);
-                this._compassRadiusTextRect.setAttribute('y',`${y}`);
-
-                x = Number(this._compassColorBox.getAttribute('x')) - dx;
-                y = Number(this._compassColorBox.getAttribute('y')) + dy;
-
-                this._compassColorBox.setAttribute('x',`${x}`);
-                this._compassColorBox.setAttribute('y',`${y}`);
-                
-                x2 = Number(this._compassRadius.getAttribute('x2')) ;
-                y2 = Number(this._compassRadius.getAttribute('y2')) ;
-
-                x = (x2 + x1)/2 - this._compassRadiusLengthTextRectWidth/2;
-                y = (y2 + y1)/2 - this._compassRadiusLengthTextRectHeight/2;
-                this._compassRadiusTextRect.setAttribute('x',`${x}`);
-                this._compassRadiusTextRect.setAttribute('y',`${y}`);
-
-                let fontSize = 12;
-                let radiusValue = `${(this._radius*0.02645833).toFixed(2)} cm`;
-                let metrics = this.measureText(radiusValue, fontSize);
-                if (metrics){
-                    x = x + this._compassRadiusLengthTextRectWidth/2 - metrics.width/2;
-                    y = y + this._compassRadiusLengthTextRectHeight/2 + metrics.fontBoundingBoxAscent/2 ;
-                    this._compassRadiusText.setAttribute('x',`${x}`);
-                    this._compassRadiusText.setAttribute('y',`${y}`);
-                    this._compassRadiusText.childNodes[0].textContent = radiusValue;
-                }
-                
-                if (event.deltaY > 0) {
-                    this._direction = false;
-                }
-                else {
-                    this._direction = true;
-                }
-                this.drawArcUsingAngles(previousAngle, newAngle);
-                // this.drawArc(new Point(this._lastPosition.x, this._lastPosition.y));
-
-            }
-        
+            this.handleWheelEventToDrawOrRotate(event);
         });
     }
 
+    private handleWheelEventToDrawOrRotate(event: WheelEvent){
 
-     private getAngle(position: Point):number {
-
-        let x1 = Number(this._compassRadius.getAttribute('x1')) ;
-        let y1 = Number(this._compassRadius.getAttribute('y1')) ;  
-
-        let tx = position.x - x1;
-        let ty = position.y - y1;
-
-        let alfa = Math.atan(Math.abs(ty / tx));
-        if (tx < 0 && ty > 0) {
-            alfa = Math.PI - Math.abs(alfa);
-        }
-        else if (tx < 0 && ty < 0) {
-            alfa = Math.PI + Math.abs(alfa);
-        }
-        else if (tx > 0 && ty < 0) {
-            alfa = 2 * Math.PI - Math.abs(alfa);
-        }
-        return alfa;
-
-    }
-
-    private drawArc( position: Point) {
-
-        if (this._lastPosition !== null){
-            let startAngle = this.getAngle(this._lastPosition);
-            let endAngle = startAngle;
-            if (this._direction) {
-                endAngle -= 1*Math.PI/180;
-            }
-            else {
-                endAngle += 1*Math.PI/180;
-            }
-          
-
-            let context = this._drawingLayer?.canvas?.getContext('2d');
-
-            if (context && this.drawingBoxChecked && this._locked) {
-                let direction = this.getDirection(startAngle, endAngle);
-                context.save();
-
-                context.strokeStyle = this.settings.color;
-                context.lineWidth = this.settings.thickness;
-
-                context.beginPath();
-                context.arc(this._center.x, this._center.y, this._radius, startAngle, endAngle, true);
-                context.stroke();
-
-                context.restore();
-            }
-        }
-    }
-
+        event.preventDefault();
+        event.stopPropagation();
     
-    private drawArcUsingAngles(startAngle: number, endAngle: number) {
+        if (this._locked ) {        
+            let x1 = Number(this._compassRadius.getAttribute('x1')) ;
+            let y1 = Number(this._compassRadius.getAttribute('y1')) ;        
+            let x2 = Number(this._compassRadius.getAttribute('x2')) ;
+            let y2 = Number(this._compassRadius.getAttribute('y2')) ;
+
+            this._lastPosition = new Point(x2, y2);
+            let previousAngle =this._angle*Math.PI/180;
+            let direction = false;
+            if (event.deltaY < 0){
+                this._angle =  (this._angle - 1) % 360;;
+                direction = true;
+            }
+            else
+            {
+                this._angle = (this._angle + 1) % 360;;
+            }
+            let newAngle = this._angle*Math.PI/180;
+            
+            let tx2_o = this._radius* Math.cos(previousAngle);
+            let ty2_o = this._radius* Math.sin(previousAngle);
+
+            let tx2_a = this._radius* Math.cos(newAngle);
+            let ty2_a = this._radius* Math.sin(newAngle);
+
+            let dx = tx2_o - tx2_a;
+            let dy = -(ty2_o - ty2_a);
+
+            this._lastPosition = new Point(x2 - dx , y2 + dy);
+
+            this._compassRadius.setAttribute('x2',`${this._lastPosition.x}`);
+            this._compassRadius.setAttribute('y2',`${this._lastPosition.y}`);
+            
+            let x = Number(this._compassPen.getAttribute('x')) - dx;
+            let y = Number(this._compassPen.getAttribute('y')) + dy;
+
+            this._compassPen.setAttribute('x',`${x}`);
+            this._compassPen.setAttribute('y',`${y}`);
+
+            x = Number(this._compassRadiusTextRect.getAttribute('x')) - dx;
+            y = Number(this._compassRadiusTextRect.getAttribute('y')) + dy ;
+
+            this._compassRadiusTextRect.setAttribute('x',`${x}`);
+            this._compassRadiusTextRect.setAttribute('y',`${y}`);
+
+            x = Number(this._compassColorBox.getAttribute('x')) - dx;
+            y = Number(this._compassColorBox.getAttribute('y')) + dy;
+
+            this._compassColorBox.setAttribute('x',`${x}`);
+            this._compassColorBox.setAttribute('y',`${y}`);
+            
+            x2 = Number(this._compassRadius.getAttribute('x2')) ;
+            y2 = Number(this._compassRadius.getAttribute('y2')) ;
+
+            x = (x2 + x1)/2 - this._compassRadiusLengthTextRectWidth/2;
+            y = (y2 + y1)/2 - this._compassRadiusLengthTextRectHeight/2;
+            this._compassRadiusTextRect.setAttribute('x',`${x}`);
+            this._compassRadiusTextRect.setAttribute('y',`${y}`);
+
+            let fontSize = 12;
+            let radiusValue = `${(this._radius*0.02645833).toFixed(2)} cm`;
+            let metrics = this.measureText(radiusValue, fontSize);
+            if (metrics){
+                x = x + this._compassRadiusLengthTextRectWidth/2 - metrics.width/2;
+                y = y + this._compassRadiusLengthTextRectHeight/2 + metrics.fontBoundingBoxAscent/2 ;
+                this._compassRadiusText.setAttribute('x',`${x}`);
+                this._compassRadiusText.setAttribute('y',`${y}`);
+                this._compassRadiusText.childNodes[0].textContent = radiusValue;
+            }
+            
+            if (this.drawingBoxChecked){
+                this.drawArcUsingAngles(previousAngle, newAngle, direction);
+            }
+        }
+    } 
+    
+    private handleClickEventToDrawOrRotate(event: PointerEvent){
+
+        if (this._locked ) {        
+            let x1 = Number(this._compassRadius.getAttribute('x1')) ;
+            let y1 = Number(this._compassRadius.getAttribute('y1')) ;        
+            let x2 = Number(this._compassRadius.getAttribute('x2')) ;
+            let y2 = Number(this._compassRadius.getAttribute('y2')) ;
+
+            this._lastPosition = new Point(x2, y2);
+            let previousAngle =this._angle*Math.PI/180;
+            let direction = false;
+            if (event.buttons === 1){
+                this._angle =  (this._angle - 1) % 360;;
+                direction = true;
+            }
+            else if (event.buttons === 2){
+                this._angle = (this._angle + 1) % 360;;
+            }
+            else{
+                return ;
+            }
+            let newAngle = this._angle*Math.PI/180;
+            
+            let tx2_o = this._radius* Math.cos(previousAngle);
+            let ty2_o = this._radius* Math.sin(previousAngle);
+
+            let tx2_a = this._radius* Math.cos(newAngle);
+            let ty2_a = this._radius* Math.sin(newAngle);
+
+            let dx = tx2_o - tx2_a;
+            let dy = -(ty2_o - ty2_a);
+
+            console.log(`angle : ${this._angle} \n`)
+           
+
+            this._lastPosition = new Point(x2 - dx , y2 + dy);
+            console.log(`x: ${this._lastPosition.x}  y: ${this._lastPosition.y} \n`)
+            
+            this._compassRadius.setAttribute('x2',`${this._lastPosition.x}`);
+            this._compassRadius.setAttribute('y2',`${this._lastPosition.y}`);
+            
+            let x = Number(this._compassPen.getAttribute('x')) - dx;
+            let y = Number(this._compassPen.getAttribute('y')) + dy;
+
+            this._compassPen.setAttribute('x',`${x}`);
+            this._compassPen.setAttribute('y',`${y}`);
+
+            x = Number(this._compassRadiusTextRect.getAttribute('x')) - dx;
+            y = Number(this._compassRadiusTextRect.getAttribute('y')) + dy ;
+
+            this._compassRadiusTextRect.setAttribute('x',`${x}`);
+            this._compassRadiusTextRect.setAttribute('y',`${y}`);
+
+            x = Number(this._compassColorBox.getAttribute('x')) - dx;
+            y = Number(this._compassColorBox.getAttribute('y')) + dy;
+
+            this._compassColorBox.setAttribute('x',`${x}`);
+            this._compassColorBox.setAttribute('y',`${y}`);
+            
+            x2 = Number(this._compassRadius.getAttribute('x2')) ;
+            y2 = Number(this._compassRadius.getAttribute('y2')) ;
+
+            x = (x2 + x1)/2 - this._compassRadiusLengthTextRectWidth/2;
+            y = (y2 + y1)/2 - this._compassRadiusLengthTextRectHeight/2;
+            this._compassRadiusTextRect.setAttribute('x',`${x}`);
+            this._compassRadiusTextRect.setAttribute('y',`${y}`);
+
+            let fontSize = 12;
+            let radiusValue = `${(this._radius*0.02645833).toFixed(2)} cm`;
+            let metrics = this.measureText(radiusValue, fontSize);
+            if (metrics){
+                x = x + this._compassRadiusLengthTextRectWidth/2 - metrics.width/2;
+                y = y + this._compassRadiusLengthTextRectHeight/2 + metrics.fontBoundingBoxAscent/2 ;
+                this._compassRadiusText.setAttribute('x',`${x}`);
+                this._compassRadiusText.setAttribute('y',`${y}`);
+                this._compassRadiusText.childNodes[0].textContent = radiusValue;
+            }
+            
+            if (this.drawingBoxChecked){
+                this.drawArcUsingAngles(previousAngle, newAngle, direction);
+            }
+        }
+    } 
+
+    private drawArcUsingAngles(startAngle: number, endAngle: number, direction: boolean) {
 
         let context = this._drawingLayer?.canvas?.getContext('2d');
 
@@ -921,7 +955,6 @@ export class Compass{
             let x1 = Number(this._compassRadius.getAttribute('x1')) ;
             let y1 = Number(this._compassRadius.getAttribute('y1')) ;  
 
-            let direction = this.getDirection(startAngle, endAngle);
             context.save();
 
             context.strokeStyle = this.settings.color;
@@ -929,7 +962,7 @@ export class Compass{
 
             context.beginPath();
            
-            context.arc(x1, y1, this._radius, startAngle, endAngle,  false);
+            context.arc(x1, y1, this._radius, startAngle, endAngle,  direction);
             context.stroke();
 
             context.restore();
@@ -937,35 +970,33 @@ export class Compass{
 
     }
 
-    private getDirection (startAngle: number, endAngle : number) {
-
-        if (startAngle >= 0 && endAngle >= 0) {
-            if (startAngle - endAngle > 0){
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-            // if (startAngle > 3 * Math.PI / 2 && endAngle <= Math.PI / 2) {
-            //     return false;
-            // }
-            // if (startAngle <= Math.PI / 2 && endAngle > 3 * Math.PI / 2) {
-            //     return true;
-            // }
-            // if (startAngle > endAngle) {
-            //     return true;
-            // }
+    private updateAngle () {
+        let x1 = Number(this._compassRadius.getAttribute('x1')) ;
+        let y1 = Number(this._compassRadius.getAttribute('y1')) ; 
+        let x2 = Number(this._compassRadius.getAttribute('x2')) ;
+        let y2 = Number(this._compassRadius.getAttribute('y2')) ;  
+        
+        let Rx = x2 - x1;
+        let Ry = -(y2 - y1);
+        let angle = Math.round(Math.atan(Ry/Rx) * 180/ Math.PI);
+        if (Ry > 0 && Rx > 0)
+        {
+            angle = -1*angle;
         }
-        if (startAngle < 0 && endAngle < 0) {
-            if (startAngle > endAngle) {
-                return true;
-            }
+        else if ((Ry > 0 && Rx < 0) || (Ry < 0 && Rx < 0)){
+            angle = -1* (180 + angle);
         }
-        return false;
+        else if (Ry < 0 && Rx > 0)
+        {
+            angle = -1*(360 + angle);
+        }
+        this._angle = angle;
     }
 
-
+    handle(eventData: CompassSettingsChangedEvent): void {
+        this._settings = eventData.settings;
+        this._compassColorBox.setAttribute('fill', this._settings.color);
+    }
    
     dispose(){
            

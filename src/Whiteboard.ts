@@ -241,6 +241,7 @@ export class Whiteboard implements IEventHandler{
         this._activePen?.dispose();
         this._activePen = null;
         document.body.style.touchAction ='auto';
+        
         if (this._drawingLayer !== null){
             if (this._drawingLayer.canvas){
                 this._drawingLayer.canvas.style.cursor = 'auto';
@@ -383,11 +384,12 @@ export class Whiteboard implements IEventHandler{
                 break;
 
             case 'AddRulerEvent' :
-                this.handleAddRulerEvent(eventData as AddRulerEvent)
+                this.handleAddRulerEvent(eventData as AddRulerEvent);
+                this._toolbox.resetPointerSelection();
                 break;
 
             case 'RemoveRulerEvent':
-                this.handleRemoveRulerEvent(eventData as RemoveRulerEvent)
+                this.handleRemoveRulerEvent(eventData as RemoveRulerEvent);
                 break;
 
             case 'NewWhiteboardEvent' :
