@@ -57,3 +57,31 @@ export class RemoveRulerEvent extends BaseDrawingEvent{
         return this._type;
     }
 }
+
+export class RulerReleasedCapture extends BaseDrawingEvent{
+
+    private _id : string;
+    private _type : RulersType;
+   
+    constructor(id: string, type : ToolBoxItemType){
+        super('RulerReleasedCapture');
+        this._id = id;
+        if (type === ToolBoxItemType.Ruler){
+            this._type = RulersType.NormalRuler;
+        }
+        else if (type === ToolBoxItemType.Protractor){
+            this._type = RulersType.Protractor;
+        }
+        else{
+            this._type = RulersType.SetSquare;
+        }
+    }
+
+    get id():string{
+        return this._id;
+    }
+
+    get type():RulersType{
+        return this._type;
+    }
+}

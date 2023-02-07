@@ -1,7 +1,10 @@
-import { BaseRuler as BaseRuler, DistanceToRuler, RulersType } from "./BaseRuler";
+import { BaseRuler as BaseRuler, CapturedRulerInfo, RulersType } from "./BaseRuler";
 import { DrawingLayer } from "./DrawingLayer";
+import { EventAggregator } from "./EventAggregator";
 import { IDispose } from "./IDispose";
 import { Point } from "./Point";
+import { RulerReleasedCapture as RulerCaptureReleased } from "./RulerDrawingEvents";
+import { ToolBoxItemType } from "./ToolBoxItemType";
 
 
 export class Ruler extends BaseRuler implements IDispose{
@@ -54,7 +57,9 @@ export class Ruler extends BaseRuler implements IDispose{
         }
 
         this._svgRulerInstance.addEventListener('pointerdown', (event) =>{
-            
+            if (this._captured){
+                return ;
+            }
             let pointerEvent = event as PointerEvent;
             pointerEvent.stopPropagation();
             pointerEvent.preventDefault();
@@ -79,7 +84,9 @@ export class Ruler extends BaseRuler implements IDispose{
         });
 
         this._svgRulerInstance.addEventListener('pointermove', (event) =>{
-            
+            if (this._captured){
+                return ;
+            }
             let pointerEvent = event as PointerEvent;
             pointerEvent.stopPropagation();
             pointerEvent.preventDefault();
@@ -111,10 +118,17 @@ export class Ruler extends BaseRuler implements IDispose{
         });
 
         this._svgRulerInstance.addEventListener('pointerup', (event) =>{
-
+            
             let pointerEvent = event as PointerEvent;
             pointerEvent.stopPropagation();
             pointerEvent.preventDefault();
+
+            if (this._captured){
+                this.uncapture(pointerEvent.pointerId);
+
+                let rulerCaptureReleased = new RulerCaptureReleased(this.id, ToolBoxItemType.Ruler);
+                EventAggregator.publish(rulerCaptureReleased)
+            }
 
             this.touchFingure1 = undefined;
             this.touchFingure2 = undefined;
@@ -318,9 +332,7 @@ export class Ruler extends BaseRuler implements IDispose{
         this._svgAngleIndicator = indicatorText;
     }
     
-
-
-    calculateDistanceToRuler(penPosition : Point):DistanceToRuler{
+    calculateDistanceToRuler(penPosition : Point):CapturedRulerInfo{
 
         let distanceFromTopSide = Number.MAX_VALUE;
         let distanceFromBottomSide = Number.MAX_VALUE;
@@ -374,14 +386,14 @@ export class Ruler extends BaseRuler implements IDispose{
         }
         if (distanceFromTopSide < distanceFromBottomSide) {
             console.log(distanceFromTopSide);
-            return new DistanceToRuler(RulersType.NormalRuler, "top", Math.abs(distanceFromTopSide));
+            return new CapturedRulerInfo(RulersType.NormalRuler, "top", Math.abs(distanceFromTopSide), this.center, this);
         }
         else {
-            return new DistanceToRuler(RulersType.NormalRuler, "bottom", Math.abs(distanceFromBottomSide));
+            return new CapturedRulerInfo(RulersType.NormalRuler, "bottom", Math.abs(distanceFromBottomSide), this.center, this);
         }
     }
     
-    mapPenPosition(distanceToRuler: DistanceToRuler, mousePosition: Point, strokeThickness : number = 1): Point {
+    mapPenPosition(distanceToRuler: CapturedRulerInfo, mousePosition: Point, strokeThickness : number = 1): Point {
 
         if (this._angleOfRotation=== 0) {
             if (distanceToRuler.side === "top") {

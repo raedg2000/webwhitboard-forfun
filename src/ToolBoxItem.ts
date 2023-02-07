@@ -55,4 +55,11 @@ export class ToolBoxItem{
         return this._divElement?.getBoundingClientRect();
     }
 
+    reset():void{
+        this.isSelected = false;
+        if (this._settings){
+            this._settings.reset();
+        }
+    } 
+
 }

@@ -170,4 +170,12 @@ export class CompassToolBoxItem extends ToolBoxItem{
             compassMenuExpander?.setAttribute('fill', this.settings.color);
         }
     } 
+
+    reset(): void {
+        this.isSelected= false;
+        this.settings.reset();
+        this.enable(this.id, this.isSelected);
+        let compassMenuExpander = document.getElementById(`compassColorSection#${this.id.split('#')[1]}`);
+        compassMenuExpander?.setAttribute('fill', this.settings.color);
+    }
 }

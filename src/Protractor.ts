@@ -1,35 +1,45 @@
-import { BaseRuler as BaseRuler, DistanceToRuler, RulersType } from "./BaseRuler";
+import { BaseRuler as BaseRuler, CapturedRulerInfo, RulersType } from "./BaseRuler";
 import { DrawingLayer } from "./DrawingLayer";
+import { EventAggregator } from "./EventAggregator";
 import { IDispose } from "./IDispose";
 import { Point } from "./Point";
+import { RulerReleasedCapture } from "./RulerDrawingEvents";
+import { ToolBoxItemType } from "./ToolBoxItemType";
 
 
 export class Protractor extends BaseRuler implements IDispose{
 
     private _radius : number;
     private _center : Point;
+    private _circleElement : SVGCircleElement;
    
     constructor(id: string, drawingLayer : DrawingLayer){
         super(id, drawingLayer, 120/0.2645833, 120/0.2645833, RulersType.Protractor);
         this._strokeWidth = 2;
         this._radius = this._width/2 - 2*this._strokeWidth;
         this._center =  new Point(this._width/2 , this._height/2 );
-        this.buildRuler();
-    }
 
-    private buildRuler(){
         this._svgRulerInstance.style.pointerEvents = 'none';
         let group = document.createElementNS("http://www.w3.org/2000/svg", "g");
         group.id = `parentgroup#${this._id.split('#')[1]}`;
         this._svgRulerInstance.appendChild(group);
 
-        let circle = this.drawOuterCricle(group);
+        this._circleElement = this.drawOuterCricle(group);
         this.drawHorizontalLine(group);
         this.drawVerticalLine(group);
         this.drawInnerCircle(group);
         this.drawMarkings(group);
 
-        circle.addEventListener('pointerdown', (event) =>{
+        this.buildRulerEvents();
+    }
+
+    private buildRulerEvents(){
+
+
+        this._circleElement.addEventListener('pointerdown', (event) =>{
+            if (this._captured){
+                return ;
+            }
             let pointerEvent = event as PointerEvent;
             pointerEvent.stopPropagation();
             pointerEvent.preventDefault();
@@ -53,7 +63,10 @@ export class Protractor extends BaseRuler implements IDispose{
             }
         });
 
-        circle.addEventListener('pointermove', (event) =>{
+        this._circleElement.addEventListener('pointermove', (event) =>{
+            if (this._captured){
+                return ;
+            }
             let pointerEvent = event as PointerEvent;
             pointerEvent.stopPropagation();
             pointerEvent.preventDefault();
@@ -80,11 +93,18 @@ export class Protractor extends BaseRuler implements IDispose{
 
         });
 
-        circle.addEventListener('pointerup', (event) =>{
+        this._circleElement.addEventListener('pointerup', (event) =>{
             let pointerEvent = event as PointerEvent;
             
             pointerEvent.stopPropagation();
             pointerEvent.preventDefault();
+
+            if (this._captured){
+                this.uncapture(pointerEvent.pointerId);
+
+                let rulerCaptureReleased = new RulerReleasedCapture(this.id, ToolBoxItemType.Ruler);
+                EventAggregator.publish(rulerCaptureReleased)
+            }
 
             this.touchFingure1 = undefined;
             this.touchFingure2 = undefined;
@@ -97,7 +117,7 @@ export class Protractor extends BaseRuler implements IDispose{
            
         });
 
-        circle.addEventListener('pointerover', (event) =>{
+        this._circleElement.addEventListener('pointerover', (event) =>{
             let pointerEvent = event as PointerEvent;
             pointerEvent.stopPropagation();
             pointerEvent.preventDefault();
@@ -108,7 +128,7 @@ export class Protractor extends BaseRuler implements IDispose{
 
          });
 
-         circle.addEventListener('pointerout', (event) =>{
+        this._circleElement.addEventListener('pointerout', (event) =>{
 
             let pointerEvent = event as PointerEvent;
             pointerEvent.stopPropagation();
@@ -118,7 +138,7 @@ export class Protractor extends BaseRuler implements IDispose{
 
         });
 
-        circle.addEventListener('wheel', (event) =>{
+        this._circleElement.addEventListener('wheel', (event) =>{
             let wheelEvent = event as WheelEvent;
             wheelEvent.preventDefault();
             wheelEvent.stopPropagation();
@@ -281,16 +301,16 @@ export class Protractor extends BaseRuler implements IDispose{
         this._svgRulerInstance.style.transform = `rotate(${this._angleOfRotation}deg`;
     }
 
-    calculateDistanceToRuler(penPosition : Point): DistanceToRuler{
+    calculateDistanceToRuler(penPosition : Point): CapturedRulerInfo{
        
         let center = new Point(this._topLeftPostion.x + this._width/2, this._topLeftPostion.y + this._width/2);
         
         let distance =  Math.abs(this._radius - Math.sqrt(Math.pow(penPosition.x - center.x , 2) + Math.pow(penPosition.y - center.y, 2)));
         console.log(`dist : ${distance}`) 
-        return new DistanceToRuler(this.type, 'circle', distance);
+        return new CapturedRulerInfo(this.type, 'circle', distance, center, this);
     }
 
-    mapPenPosition(distanceToRuler: DistanceToRuler, mousePosition: Point, strokeThickness: number = 1): Point {
+    mapPenPosition(distanceToRuler: CapturedRulerInfo, mousePosition: Point, strokeThickness: number = 1): Point {
 
         let center = new Point(this._topLeftPostion.x + this._width/2, this._topLeftPostion.y + this._width/2);
         let tx = (mousePosition.x - center.x );
@@ -314,4 +334,54 @@ export class Protractor extends BaseRuler implements IDispose{
         );
     }
 
+    capture(pointerId: number):void{
+        this._captured = true;
+        this._circleElement.setPointerCapture(pointerId);
+    }
+
+    uncapture(pointerId: number):void{
+        this._captured = false;
+        this._circleElement.releasePointerCapture(pointerId);
+    }
+
+
+    static getAngle(position : Point, center : Point) {
+        let tx = position.x - center.x ;
+        let ty = position.y - center.y ;
+
+        let alfa = Math.atan(Math.abs(ty / tx));
+        if (tx < 0 && ty > 0) {
+            alfa = Math.PI  -  Math.abs(alfa);
+        }
+        else if (tx < 0 && ty < 0) {
+            alfa = Math.PI + Math.abs(alfa);
+        }
+        else if (tx > 0 && ty < 0) {
+            alfa = 2 * Math.PI - Math.abs(alfa);
+        }
+        return alfa;
+
+    }
+
+    static getDirection(startAngle : number, endAngle : number) {
+
+        if (startAngle >= 0 && endAngle >= 0) {
+            if (startAngle > 3 * Math.PI / 2 && endAngle <= Math.PI / 2) {
+                return false;
+            }
+            if (startAngle <= Math.PI / 2 && endAngle > 3 * Math.PI / 2) {
+                return true;
+            }
+            if (startAngle > endAngle) {
+                return true;
+            }
+            
+        }
+        if (startAngle < 0 && endAngle < 0) {
+            if (startAngle > endAngle) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

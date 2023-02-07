@@ -8,11 +8,13 @@ export enum RulersType{
     Protractor = 'Protractor'
 }
 
-export class DistanceToRuler{
+export class CapturedRulerInfo{
 
-    constructor(public ruler : RulersType = RulersType.NormalRuler,
+    constructor(public rulerType : RulersType = RulersType.NormalRuler,
                 public side : string  = '',
-                public distance : number = 0){}
+                public distance : number = 0,
+                public center : Point ,
+                public targetRuler : BaseRuler){}
 }
 export abstract class BaseRuler{
 
@@ -39,6 +41,8 @@ export abstract class BaseRuler{
     protected touchFingure2 : PointerEvent | undefined;
     protected touchFingure1_IsCenter : boolean =  false;
 
+    protected _captured : boolean = false;
+
     protected readonly _type: RulersType;
 
     static readonly Ruler_Shift = 2;
@@ -58,7 +62,7 @@ export abstract class BaseRuler{
     }
 
     get id():string{
-        return this.id;
+        return this._id;
     }
 
     get type():RulersType{
@@ -95,10 +99,19 @@ export abstract class BaseRuler{
     }
 
 
-    abstract calculateDistanceToRuler(penPosition : Point):DistanceToRuler;
+    abstract calculateDistanceToRuler(penPosition : Point):CapturedRulerInfo;
 
-    abstract mapPenPosition(distanceToRuler : DistanceToRuler, mousePosition: Point, strokeThickness : number ):Point ;
+    abstract mapPenPosition(distanceToRuler : CapturedRulerInfo, mousePosition: Point, strokeThickness : number ):Point ;
 
+    capture(pointerId: number):void{
+        this._captured = true;
+        this._svgRulerInstance.setPointerCapture(pointerId);
+    }
+
+    uncapture(pointerId: number):void{
+        this._captured = false;
+        this._svgRulerInstance.releasePointerCapture(pointerId);
+    }
     
     dispose(){
         document.body.removeChild(this._svgRulerInstance);

@@ -109,9 +109,10 @@ export class Whiteboard implements IEventHandler{
                     let mousePosition  = this.mapMousePositionToCanvas(event.clientX, event.clientY);
                     if (this._activePen instanceof Pen){
                         let pen = this._activePen as Pen;
-                        let result = PenRulerHelper.getRulerWithMinimumDistanceToPen(this._activeRulers, mousePosition);
+                        let result = PenRulerHelper.captureRulerInfo(this._activeRulers, mousePosition);
                         if (result !== null){
-                            let ruler = this._activeRulers.get(result.ruler);
+                            pen.setPointerCaptureOnTargetedRuler(result, event.pointerId);
+                            let ruler = this._activeRulers.get(result.rulerType);
                             if (ruler){
                                 mousePosition = ruler.mapPenPosition(result, mousePosition, pen.settings.thickness);
                             }
@@ -134,14 +135,12 @@ export class Whiteboard implements IEventHandler{
                 if (this._activePen instanceof Pen && this._activePen.drawingStarted){
                     let pen = this._activePen as Pen;
                     let mousePosition  = this.mapMousePositionToCanvas(event.clientX, event.clientY);
-                    let result = PenRulerHelper.getRulerWithMinimumDistanceToPen(this._activeRulers, mousePosition);
-                    //this._activePen.OnMouseMove(this.mapMousePositionToCanvas(event.clientX, event.clientY))
-                    if (result !== null){
-                        let ruler = this._activeRulers.get(result.ruler);
-                        if (ruler){
-                            mousePosition = ruler.mapPenPosition(result, mousePosition, pen.settings.thickness);
-                        }
+                   
+                    let capturedRulerInfo = this._activePen.getCapturedRulerInfo();
+                    if (capturedRulerInfo !== null){
+                        mousePosition = capturedRulerInfo.targetRuler.mapPenPosition(capturedRulerInfo, mousePosition, pen.settings.thickness);
                     }
+                   
                     this._activePen.OnMouseMove(mousePosition);
                 }
                 else if (this._activePen instanceof Eraser && this._activePen.erasingStarted){
@@ -171,17 +170,18 @@ export class Whiteboard implements IEventHandler{
 
     private mapMousePositionToCanvas(x : number, y : number) : Point{
 
-        if (this._drawingLayer?.canvas) {
-            let canvas = this._drawingLayer.canvas;
-            var bbox = canvas.getBoundingClientRect();
+        return   new Point(x,y);
+        // if (this._drawingLayer?.canvas) {
+        //     let canvas = this._drawingLayer.canvas;
+        //     var bbox = canvas.getBoundingClientRect();
     
-            return  new Point(x - bbox.left * (canvas.width / bbox.width),
-                          y - bbox.top * (canvas.height / bbox.height));
+        //     return  new Point(x - bbox.left * (canvas.width / bbox.width),
+        //                   y - bbox.top * (canvas.height / bbox.height));
 
-        }
-        else {
-            return   new Point(-1,-1);
-        }
+        // }
+        // else {
+        //     return   new Point(-1,-1);
+        // }
     }
 
     private handlePenSelectedEvent(eventData: PenSelectedEvent) : void{

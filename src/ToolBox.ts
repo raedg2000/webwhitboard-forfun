@@ -340,24 +340,25 @@ export class ToolBox{
 
         this._toolboxItems.forEach(item =>{
            
-            item.isSelected = false;
+            // item.isSelected = false;
             item.divElement?.classList.remove(ToolBoxItem.hoverSelectedClass);
-            if (item.toolBoxItemType === penValue){
-                let penToolBoxItem = item as PenToolBoxItem;
-                penToolBoxItem.settings.reset();
-                penToolBoxItem.enable(item.id, item.isSelected)
-            }
-            else if (item.toolBoxItemType === eraserValue){
-                let eraserToolBoxItem = item as EraserToolBoxItem;
-                eraserToolBoxItem.settings.reset();
-                eraserToolBoxItem.enable(item.id, item.isSelected)
-            }
+            item.reset();
+            // if (item.toolBoxItemType === penValue){
+            //     let penToolBoxItem = item as PenToolBoxItem;
+            //     penToolBoxItem.reset();
+            //     penToolBoxItem.enable(item.id, item.isSelected)
+            // }
+            // else if (item.toolBoxItemType === eraserValue){
+            //     let eraserToolBoxItem = item as EraserToolBoxItem;
+            //     eraserToolBoxItem.settings.reset();
+            //     eraserToolBoxItem.enable(item.id, item.isSelected)
+            // }
 
-            else if (item.toolBoxItemType === compassValue){
-                let compassToolBoxItem = item as CompassToolBoxItem;
-                compassToolBoxItem.settings.reset();
-                compassToolBoxItem.enable(item.id, item.isSelected)
-            }
+            // else if (item.toolBoxItemType === compassValue){
+            //     let compassToolBoxItem = item as CompassToolBoxItem;
+            //     compassToolBoxItem.settings.reset();
+            //     compassToolBoxItem.enable(item.id, item.isSelected)
+            // }
         });
     }
 
@@ -366,7 +367,7 @@ export class ToolBox{
 
         this._toolboxItems.forEach(item =>{
             if (item.toolBoxItemType === pointerValue){
-                item.isSelected = false;
+                item.reset();
                 item.divElement?.classList.remove(ToolBoxItem.hoverSelectedClass);
                 document.body.style.touchAction ='none';
                 return;

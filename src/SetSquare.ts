@@ -1,4 +1,4 @@
-import { BaseRuler as BaseRuler, DistanceToRuler, RulersType } from "./BaseRuler";
+import { BaseRuler as BaseRuler, CapturedRulerInfo, RulersType } from "./BaseRuler";
 import { DrawingLayer } from "./DrawingLayer";
 import { IDispose } from "./IDispose";
 import { Point } from "./Point";
@@ -368,11 +368,11 @@ export class SetSquare extends BaseRuler implements IDispose{
         }
     }
 
-    calculateDistanceToRuler(penPosition : Point): DistanceToRuler{
-        return new DistanceToRuler(this.type, 'sideAB', Infinity);
+    calculateDistanceToRuler(penPosition : Point): CapturedRulerInfo{
+        return new CapturedRulerInfo(this.type, 'sideAB', Infinity, new Point(0,0), this);
     }
 
-    mapPenPosition(distanceToRuler: DistanceToRuler, mousePosition: Point,  strokeThickness : number = 1): Point {
+    mapPenPosition(distanceToRuler: CapturedRulerInfo, mousePosition: Point,  strokeThickness : number = 1): Point {
         return new Point(0,0);
     }
 }

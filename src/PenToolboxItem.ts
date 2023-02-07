@@ -224,6 +224,14 @@ export class PenToolBoxItem extends ToolBoxItem implements IEventHandler {
         }
     }
 
+    reset(): void {
+        this.isSelected = false;
+        this.enable(this._id, this.isSelected);
+        this.settings.reset();
+        this.setThicknessRectHeightAttributes(this.findthicknessRect(this._id));
+        this.UpdatePenColorSectionAttributes(this.findPenColorSection(this._id));
+        this.UpdatePenTipColorAttributes(this.findPenTip(this._id));
+    }
     // drawPenSVG1(){
     //     if (this._svgElement){
     //         let penShape = document.createElementNS("http://www.w3.org/2000/svg", "g");

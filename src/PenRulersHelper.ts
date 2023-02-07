@@ -1,11 +1,11 @@
-import { BaseRuler, DistanceToRuler, RulersType } from "./BaseRuler";
+import { BaseRuler, CapturedRulerInfo, RulersType } from "./BaseRuler";
 import { Point } from "./Point";
 
 export class PenRulerHelper{
 
-    static getRulerWithMinimumDistanceToPen(activeRulers : Map<RulersType, BaseRuler>, penScreenPosition:Point): null | DistanceToRuler{
+    static captureRulerInfo(activeRulers : Map<RulersType, BaseRuler>, penScreenPosition:Point): null | CapturedRulerInfo{
         let minimumDistance = Number.MAX_VALUE;
-        let distanceToRuler : DistanceToRuler | null = null;
+        let distanceToRuler : CapturedRulerInfo | null = null;
         activeRulers.forEach( (activeRuler) =>{
             if (activeRuler){
                 let result = activeRuler.calculateDistanceToRuler(penScreenPosition)
