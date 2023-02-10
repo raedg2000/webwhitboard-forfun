@@ -299,6 +299,7 @@ export class Whiteboard implements IEventHandler{
         });
         this._activeRulers.clear();
     }
+
     handle(eventData: BaseDrawingEvent): void {
         switch (eventData.eventType){
 
@@ -403,7 +404,6 @@ export class Whiteboard implements IEventHandler{
             
         }
     }
-
 
     reinitialize(){
         let title = `Untitled - ${Whiteboard.getNewCounter()}`;

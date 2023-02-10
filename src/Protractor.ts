@@ -102,7 +102,7 @@ export class Protractor extends BaseRuler implements IDispose{
             if (this._captured){
                 this.uncapture(pointerEvent.pointerId);
 
-                let rulerCaptureReleased = new RulerReleasedCapture(this.id, ToolBoxItemType.Ruler);
+                let rulerCaptureReleased = new RulerReleasedCapture(this.id, ToolBoxItemType.Protractor);
                 EventAggregator.publish(rulerCaptureReleased)
             }
 

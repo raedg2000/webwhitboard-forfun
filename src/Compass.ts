@@ -59,7 +59,7 @@ export class Compass implements IEventHandler{
 
     private _lastPosition : Point | null = null;
     private _angle = 0;
-
+    private _radiusCoordinates = new Point(0,0);
     private _line:Array<Point> = new Array<Point>();
 
     constructor(id: string, settings : BaseCompassSettings, drawingLayer : DrawingLayer) {
@@ -75,7 +75,7 @@ export class Compass implements IEventHandler{
         this._compassLock = this.createLockImage(group);
         this._compassCenter = this.createCompassCenterImage(group);
         this._compassRadius = this.createLineBetweenCenterAndPen(group);
-        this._compassPen = this.createCompassPencil(group);
+        this._compassPen = this.createCompassPen(group);
         this._compassColorBox = this.createCompassPenColorBoxIndicator(group);
        
         this._compassRadiusTextRect = this.createCompassRadiusLengthTextRectangle(group);
@@ -313,7 +313,7 @@ export class Compass implements IEventHandler{
     }
 
 
-    private createCompassPencil(group : SVGElement): SVGImageElement{
+    private createCompassPen(group : SVGElement): SVGImageElement{
         let pencilImage = document.createElementNS("http://www.w3.org/2000/svg", "image");
         pencilImage.id = `compassPencil#${this._id.split('#')[1]}`;
         pencilImage.setAttribute('style', `pointer-events: auto`);
@@ -397,7 +397,6 @@ export class Compass implements IEventHandler{
                 this._compassRadiusText.setAttribute('x',`${x}`);
                 this._compassRadiusText.setAttribute('y',`${y}`);
             }
-
         });
         this._compassRadius.addEventListener('pointerup',  (event) => {
             let pointerEvent = event as PointerEvent;
@@ -548,7 +547,7 @@ export class Compass implements IEventHandler{
 
     private defineCompassPenEvents(){
         this._compassPen.addEventListener('pointerdown',  (event) => {
-
+            document.body.style.touchAction ='none';
             if (!this._locked && (event.pointerType !== 'mouse'  || (event.pointerType === 'mouse' && event.button === 0))){
                 
                 this._compassPen.style.cursor = 'grab';
@@ -556,13 +555,14 @@ export class Compass implements IEventHandler{
                 event.stopPropagation();
                 this.pencilDragging = true;
             }
-            else if (this._locked){
+            else if (this._locked && (event.pointerType !== 'mouse'  || (event.pointerType === 'mouse' && event.button === 1))) 
+           
                 event.preventDefault();
                 event.stopPropagation();
-                
-                this.handleClickEventToDrawOrRotate(event);
-            }
-
+                this._compassPen.style.cursor = 'grab';
+                this._drawingStarted = true;
+                this._compassPen.setPointerCapture(event.pointerId);
+                //this.handleClickEventToDrawOrRotate(event);
         });
 
         this._compassPen.addEventListener('pointermove', (event) => {
@@ -625,6 +625,10 @@ export class Compass implements IEventHandler{
                 }
             }
 
+            else if (this._locked && this._drawingStarted){
+                this.movePencilInAnArc(pointerEvent);
+            }
+
         });
 
         this._compassPen.addEventListener('pointerup',  (event) => {
@@ -632,8 +636,12 @@ export class Compass implements IEventHandler{
             document.body.style.touchAction ='auto';
             pointerEvent.stopPropagation();
             pointerEvent.preventDefault();
-
-            if (this.pencilDragging){
+            
+            if (this._drawingStarted){
+                this._drawingStarted = false;
+                this._compassPen.releasePointerCapture(pointerEvent.pointerId);
+            }
+            else if (this.pencilDragging){
                 this.updateAngle();
                 this._compassPen.style.cursor = 'pointer';
             }
@@ -675,6 +683,7 @@ export class Compass implements IEventHandler{
             else if (this._locked){
                 event.preventDefault();
                 event.stopPropagation();
+
                 this.handleClickEventToDrawOrRotate(event);
             }
 
@@ -894,11 +903,7 @@ export class Compass implements IEventHandler{
             let dx = tx2_o - tx2_a;
             let dy = -(ty2_o - ty2_a);
 
-            console.log(`angle : ${this._angle} \n`)
-           
-
             this._lastPosition = new Point(x2 - dx , y2 + dy);
-            console.log(`x: ${this._lastPosition.x}  y: ${this._lastPosition.y} \n`)
             
             this._compassRadius.setAttribute('x2',`${this._lastPosition.x}`);
             this._compassRadius.setAttribute('y2',`${this._lastPosition.y}`);
@@ -970,6 +975,151 @@ export class Compass implements IEventHandler{
 
     }
 
+    private getAngleInRadians (pointerEvent: PointerEvent): number {
+
+        let x1 = Number(this._compassRadius.getAttribute('x1')) ;
+        let y1 = Number(this._compassRadius.getAttribute('y1')) ;
+        let x2 = Number(this._compassRadius.getAttribute('x2')) ;
+        let y2 = Number(this._compassRadius.getAttribute('y2')) ;   
+      
+        let Rx = x2 - x1 + pointerEvent.movementX;
+        let Ry = (y2 - y1) + pointerEvent.movementY;
+    
+        let angle = Math.atan(Ry/Rx);
+        if (Ry > 0 && Rx > 0)
+        {
+            angle = angle;
+        }
+        else if ((Ry > 0 && Rx < 0) || (Ry < 0 && Rx < 0)){
+            angle = (Math.PI + angle);
+        }
+        else if (Ry < 0 && Rx > 0)
+        {
+            angle = (2*Math.PI + angle);
+        }
+        
+        return angle % (2*Math.PI);
+    }
+
+    private getRotationDirection(pointerEvent: PointerEvent, x2_before_rotation : number, y2_before_rotation : number,
+                                 x2_after_rotation : number, y2_after_rotation : number): boolean {
+
+        let xb2 = x2_before_rotation;
+        let yb2 = y2_before_rotation;
+
+        let xa2 = x2_after_rotation;
+        let ya2 = y2_after_rotation;
+
+        // both are in first quadrant
+        if (xb2 > 0 && yb2 >= 0 && xa2 > 0  && ya2 > 0){
+            if (xb2 >= xa2 && yb2 <= ya2){
+                return true;
+            }
+        }
+        if (xb2 > 0 && yb2 > 0 && xa2 <= 0  && ya2 > 0){
+            return true;
+        }
+
+        if (xb2 <= 0 && yb2 > 0 && xa2 <= 0  && ya2 > 0){
+            if (xb2 >= xa2 && yb2 > ya2){
+                return true;
+            }
+        }
+
+        if (xb2 <= 0 && yb2 > 0 && xa2 < 0  && ya2 <= 0){
+                return true;
+        }
+
+        if (xb2 <= 0 && yb2 <= 0 && xa2 < 0  && ya2 < 0){
+            if (xb2 < xa2 && yb2 > ya2){
+                return true;
+            }
+        }
+
+        if (xb2 < 0 && yb2 < 0 && xa2 >= 0  && ya2 < 0){
+            return true;
+        }
+
+        if (xb2 >= 0 && yb2 < 0 && xa2 > 0  && ya2 <=0 ){
+            if (xa2 > xb2 && ya2 > yb2){
+                return true;
+            }
+        }
+    
+        if (xb2 > 0 && yb2 <= 0 && xa2 > 0  && ya2 > 0){
+            return true;
+        }
+
+        return false;
+    }
+    
+    
+    private movePencilInAnArc(pointerEVent : PointerEvent) {
+
+        if (pointerEVent.movementX === 0 && pointerEVent.movementY ===0){
+            return ;
+        }
+        let x1 = Number(this._compassRadius.getAttribute('x1')) ;
+        let y1 = Number(this._compassRadius.getAttribute('y1')) ;
+        let x2 = Number(this._compassRadius.getAttribute('x2')) ;
+        let y2 = Number(this._compassRadius.getAttribute('y2')) ;
+        
+        let x2_copy_before_rotation =  x2 - x1;
+        let y2_copy_before_rotation =  -(y2 - y1);
+        
+        let startAngleInRadians = this._angle*Math.PI/180;
+        x2 = x2 + pointerEVent.movementX;
+        y2 = y2 + pointerEVent.movementY;
+        let endAngleInRadians = this.getAngleInRadians(pointerEVent);
+        
+        x2 = this._radius * Math.cos(endAngleInRadians) + x1;
+        y2 = this._radius * Math.sin(endAngleInRadians) + y1;
+       
+    
+        this._compassPen.setAttribute('x',`${x2 - this._pencilWidth/2}`);
+        this._compassPen.setAttribute('y',`${y2 - this._pencilHeight}`);
+    
+        this._compassRadius.setAttribute('x2', `${x2}`);
+        this._compassRadius.setAttribute('y2', `${y2}`);
+
+        this._compassColorBox.setAttribute('x',`${x2 - this._pencilColorBoxWidth/2}`);
+        this._compassColorBox.setAttribute('y',`${y2- this._pencilHeight - this._pencilColorBoxHeight}`);
+    
+        let x = (x2 + x1)/2 - this._compassRadiusLengthTextRectWidth/2;
+        let y = (y2 + y1)/2 - this._compassRadiusLengthTextRectHeight/2;
+        this._compassRadiusTextRect.setAttribute('x',`${x}`);
+        this._compassRadiusTextRect.setAttribute('y',`${y}`);
+
+        let fontSize = 12;
+        let radiusValue = `${(this._radius*0.02645833).toFixed(2)} cm`;
+        let metrics = this.measureText(radiusValue, fontSize);
+        if (metrics){
+            x = x + this._compassRadiusLengthTextRectWidth/2 - metrics.width/2;
+            y = y + this._compassRadiusLengthTextRectHeight/2 + metrics.fontBoundingBoxAscent/2 ;
+            this._compassRadiusText.setAttribute('x',`${x}`);
+            this._compassRadiusText.setAttribute('y',`${y}`);
+            this._compassRadiusText.childNodes[0].textContent = radiusValue;
+        }
+        
+        
+        this.updateAngle();
+        endAngleInRadians = this._angle*Math.PI/180;
+        let x2_after_before_rotation =  x2 - x1;
+        let y2_after_before_rotation =  -(y2 - y1);
+        
+       let rotationDirection = this.getRotationDirection(pointerEVent, x2_copy_before_rotation, y2_copy_before_rotation, x2_after_before_rotation, y2_after_before_rotation);
+       
+        if (this.drawingBoxChecked && Math.abs(startAngleInRadians) !== Math.abs(endAngleInRadians)){
+            console.log(startAngleInRadians, endAngleInRadians, rotationDirection);
+            this.drawArcUsingAngles(startAngleInRadians, endAngleInRadians, rotationDirection);
+        }
+
+       
+        
+        // console.log(this._angle);
+        //drawArc(compassSettings, cx, cy, startAngle, endAngle);
+    }
+
     private updateAngle () {
         let x1 = Number(this._compassRadius.getAttribute('x1')) ;
         let y1 = Number(this._compassRadius.getAttribute('y1')) ; 
@@ -978,7 +1128,8 @@ export class Compass implements IEventHandler{
         
         let Rx = x2 - x1;
         let Ry = -(y2 - y1);
-        let angle = Math.round(Math.atan(Ry/Rx) * 180/ Math.PI);
+        //let angle = Math.round(Math.atan(Ry/Rx) * 180/ Math.PI);
+        let angle = Math.atan(Ry/Rx) * 180/ Math.PI;
         if (Ry > 0 && Rx > 0)
         {
             angle = -1*angle;
@@ -990,7 +1141,7 @@ export class Compass implements IEventHandler{
         {
             angle = -1*(360 + angle);
         }
-        this._angle = angle;
+        this._angle = angle % 360;
     }
 
     handle(eventData: CompassSettingsChangedEvent): void {
