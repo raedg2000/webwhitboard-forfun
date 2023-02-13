@@ -1,5 +1,6 @@
 import {BaseDrawingEvent} from './BaseDrawingEvent';
 import {BasePenSettings} from './BasePenSettings'
+import { Line } from './DrawingData';
 import { Point } from './Point';
 
 export class PenSelectedEvent extends BaseDrawingEvent{
@@ -19,20 +20,6 @@ export class PenSelectedEvent extends BaseDrawingEvent{
     
     get settings() : BasePenSettings{
         return this._basePenSetting;
-    }
-}
-
-export class PenDrawingCompletedEvent extends BaseDrawingEvent{
-
-    private _line: Array<Point> ;
-
-    constructor(line: Array<Point>){
-        super('PenDrawingCompleted');
-        this._line = line;
-    }
-
-    get line() : Array<Point>{
-        return this._line;
     }
 }
 

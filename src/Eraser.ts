@@ -1,6 +1,6 @@
 import { BaseEraserSettings, EraserShapeType } from "./BaseEraserSettings";
+import { ErasedLine, ErasedLinesDrawingCompletedEvent } from "./DrawingData";
 import { DrawingLayer } from "./DrawingLayer";
-import { EraserDrawingCompletedEvent } from "./EraserDrawingEvents";
 import { EventAggregator } from "./EventAggregator";
 import { IDispose } from "./IDispose";
 import { IMouseEventsHandler } from "./IMouseEventsHandler";
@@ -14,7 +14,7 @@ export class Eraser implements IMouseMoveEvent, IMouseLeftButtonDownEvent, IMous
     private _lastPosition : Point| null  = null;
     private _erasingStarted : boolean = false;
     private _drawingLayer : DrawingLayer | null;
-    private _line:Array<Point> = new Array<Point>();
+    private _erasedLine: ErasedLine = new ErasedLine();
     private readonly LINE_WIDTH = 1;
     private readonly STROKE_STYLE = 'gray';
     private readonly FILL_COLOR = 'transparent';
@@ -22,10 +22,30 @@ export class Eraser implements IMouseMoveEvent, IMouseLeftButtonDownEvent, IMous
     constructor(settings : BaseEraserSettings, drawingLayer : DrawingLayer) {
         this._settings = settings;
         this._drawingLayer = drawingLayer;
+        this._erasedLine.eraserType = settings.eraserShape;
+        this._erasedLine.width = settings.width;
+    }
+
+    static get LineWidth():number{
+        return 1;
+    }
+
+    static get FillColor():string{
+        return 'transparent';
     }
 
     get erasingStarted():boolean{
         return this._erasingStarted;
+    }
+
+    get settings():BaseEraserSettings{
+        return this._settings;
+    }
+
+    set settings(value : BaseEraserSettings){
+        this._settings = value;
+        this._erasedLine.eraserType = value.eraserShape;
+        this._erasedLine.width = value.width;
     }
 
     private drawCircle(context : CanvasRenderingContext2D, radius : number, position : Point) {
@@ -79,7 +99,7 @@ export class Eraser implements IMouseMoveEvent, IMouseLeftButtonDownEvent, IMous
         this._erasingStarted = true;
         if (this._previousPosition === null){
             this._previousPosition = data;
-            this._line.push(this._previousPosition);
+            this._erasedLine.points.push(this._previousPosition);
         }
         this._lastPosition = data;
         this.drawEraser( this._previousPosition);
@@ -87,7 +107,7 @@ export class Eraser implements IMouseMoveEvent, IMouseLeftButtonDownEvent, IMous
 
     OnMouseMove(data: Point): void {
         if (this._erasingStarted) {
-            this._line.push(data);
+            this._erasedLine.points.push(data);
             if (this._previousPosition !== null){
                 this.erase(this._previousPosition);
             }      
@@ -109,16 +129,14 @@ export class Eraser implements IMouseMoveEvent, IMouseLeftButtonDownEvent, IMous
        this._lastPosition = null;
        this._erasingStarted = false; 
 
-       let eraserDrawingCompletedEvent = new EraserDrawingCompletedEvent(this._line);
-       EventAggregator.publish(eraserDrawingCompletedEvent);
+       let erasedLinesDrawingCompletedEvent = new ErasedLinesDrawingCompletedEvent(this._erasedLine);
+       EventAggregator.publish(erasedLinesDrawingCompletedEvent);
 
        this._previousPosition = null;
        this._lastPosition = null;
        this._erasingStarted = false; 
-       this._line = new Array<Point>();
+       this._erasedLine = new ErasedLine();
     }
-
-  
 
     erase (position : Point){
         if (this._erasingStarted){
@@ -146,7 +164,7 @@ export class Eraser implements IMouseMoveEvent, IMouseLeftButtonDownEvent, IMous
 
     dispose(){
         this._drawingLayer = null;
-        this._line = [];
+        this._erasedLine = new ErasedLine();
         this._previousPosition = null;
         this._lastPosition = null;
     }

@@ -673,4 +673,14 @@ export class SetSquare extends BaseRuler implements IDispose{
             return this.mapMousePositionToSideBC(mousePosition,  strokeThickness);
         }
     }
+
+    capture(pointerId: number):void{
+        this._captured = true;
+        this._outerTriangle.setPointerCapture(pointerId);
+    }
+
+    uncapture(pointerId: number):void{
+        this._captured = false;
+        this._outerTriangle.releasePointerCapture(pointerId);
+    }
 }

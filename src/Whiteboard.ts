@@ -2,13 +2,13 @@ import { DrawingLayer } from "./DrawingLayer";
 import { EventAggregator } from "./EventAggregator";
 import { IEventHandler } from "./IEventHandler";
 import { ToolBox } from "./ToolBox";
-import { PenDrawingCompletedEvent, PenMenuSettingsOpenEvent, PenSelectedEvent, PenSettingsChangedEvent} from './PenDrawingEvents'
+import { PenMenuSettingsOpenEvent, PenSelectedEvent, PenSettingsChangedEvent} from './PenDrawingEvents'
 import { BaseDrawingEvent } from "./BaseDrawingEvent";
 import { Pen } from "./Pen";
 import { Point } from "./Point";
 import { ClearCanvasDrawingEvent } from "./ClearCanavasDrawingEvent";
 import { Eraser } from "./Eraser";
-import { EraserDrawingCompletedEvent, EraserMenuSettingsOpenEvent, EraserSelectedEvent, EraserSettingsChangedEvent } from "./EraserDrawingEvents";
+import { EraserMenuSettingsOpenEvent, EraserSelectedEvent, EraserSettingsChangedEvent } from "./EraserDrawingEvents";
 import { ToolBoxPointerSelectedEvent } from "./ToolboxPointerSelectedEvent";
 import { PenMenu } from "./PenMenu";
 import { AddRulerEvent, RemoveRulerEvent } from "./RulerDrawingEvents";
@@ -23,6 +23,10 @@ import { PenRulerHelper } from "./PenRulersHelper";
 import { EraserMenu } from "./EraserMenu";
 import { NewWhiteboardEvent } from "./NewFileDrawingEvents";
 import { SaveWhiteboardEvent } from "./SaveFileDrawingEvents";
+import { Arc, Arcs, ArcsDrawingCompletedEvent, ErasedLine, ErasedLinesDrawingCompletedEvent, Line, LinesDrawingCompletedEvent } from "./DrawingData";
+import { OpenSavedWhiteboardEvent } from "./OpenSavedWhiteboardEvent";
+import { Renderer } from "./Renderer";
+import { SVGLoading } from "./SVGLoading";
 
 
 export class Whiteboard implements IEventHandler{
@@ -40,8 +44,20 @@ export class Whiteboard implements IEventHandler{
     private _eraserMenu : EraserMenu | null  = null;
     private _compassMenu : CompassMenu | null = null;
 
+    private _data: Array<Line | Arcs | ErasedLine> = new Array<Line | Arcs | ErasedLine>();
+    private _dataChanged = false;
+
+    private _fileSystemHandler : FileSystemFileHandle | undefined;
+
+    private _file : File | undefined;
+
     static getNewCounter():number{
         return ++Whiteboard._counter;
+    }
+
+    static updateDocumentTitle(fileName: string){
+        
+        document.title = `Whiteboard For Fun - ${fileName}`;
     }
 
     constructor(){
@@ -50,6 +66,7 @@ export class Whiteboard implements IEventHandler{
         this.initializeDrawingLayer();
         this.subscribeToDrawingEvents();
         this._toolbox = new ToolBox();
+        Whiteboard.updateDocumentTitle(`untitled-${Whiteboard.getNewCounter()}`);
     }
 
     private subscribeToDrawingEvents(){
@@ -57,12 +74,10 @@ export class Whiteboard implements IEventHandler{
         EventAggregator.subscribe('ToolBoxPointerSelectedEvent', this);
 
         EventAggregator.subscribe('PenSelectedEvent', this);
-        EventAggregator.subscribe('PenDrawingCompletedEvent', this);
         EventAggregator.subscribe('PenMenuSettingsOpenEvent', this);
         EventAggregator.subscribe('PenSettingsChangedEvent', this);
        
         EventAggregator.subscribe('EraserSelectedEvent', this);
-        EventAggregator.subscribe('EraserDrawingCompletedEvent', this);
         EventAggregator.subscribe('EraserMenuSettingsOpenEvent', this);
         EventAggregator.subscribe('EraserSettingsChangedEvent', this);
 
@@ -76,9 +91,13 @@ export class Whiteboard implements IEventHandler{
 
         EventAggregator.subscribe('ClearCanvasDrawingEvent', this);
         
-        //EventAggregator.subscribe('OpenExistingWhiteboardEvent', this);
+        EventAggregator.subscribe('OpenSavedWhiteboardEvent', this);
         EventAggregator.subscribe('NewWhiteboardEvent', this);
         EventAggregator.subscribe('SaveWhiteboardEvent', this);
+
+        EventAggregator.subscribe('LinesDrawingCompletedEvent', this);
+        EventAggregator.subscribe('ArcsDrawingCompletedEvent', this);
+        EventAggregator.subscribe('ErasedLinesDrawingCompletedEvent', this);
     }
 
     private initializeDrawingLayer(){
@@ -196,15 +215,14 @@ export class Whiteboard implements IEventHandler{
         }
     }
 
-    private handlePenDrawingCompletedEvent(eventData : PenDrawingCompletedEvent) : void {
-
-    }
-
+ 
     private handleHandleClearCanvasEvent(eventData: ClearCanvasDrawingEvent) : void{
-       //remove rulers 
+      
+       this._data = new Array<Line | Arcs |ErasedLine>();
+       this._dataChanged = true;
        this._activeRulers.forEach((ruler)=> ruler.dispose());
        this._activeRulers.clear();
-       //remove compass
+       
        this._activeCompass?.dispose();
        this._activeCompass = null;
 
@@ -230,10 +248,6 @@ export class Whiteboard implements IEventHandler{
                 this._drawingLayer.canvas.style.cursor = 'crosshair';
             }
         }
-
-    }
-
-    private handlEraserDrawingCompletedEvent(eventData : EraserDrawingCompletedEvent) : void {
 
     }
 
@@ -285,6 +299,83 @@ export class Whiteboard implements IEventHandler{
         }
     }
 
+    private async writeContentToDisk(){
+        if (this._fileSystemHandler){
+            try{
+
+                const writable = await this._fileSystemHandler.createWritable();
+                let content = JSON.stringify(this._data);
+                await writable.write(content);
+                await writable.close();
+
+            }
+            catch(err){
+
+            }
+        }
+    }
+
+    private async handleSaveWhiteboardEvent(){
+
+        if (this._fileSystemHandler){
+            try{
+                await this.writeContentToDisk();
+            }
+            catch(err){
+                console.log(err);
+            }
+        }
+        else{
+            try{
+                const pickerOpts = {
+                    types: [
+                        {
+                        description: 'whiteboard',
+                        accept: {
+                            'file/*': ['.w4fun'],
+                        },
+                        },
+                    ],
+                    excludeAcceptAllOption: true,
+                    multiple: false,
+                };
+                // create a new handle
+                this._fileSystemHandler =  await window.showSaveFilePicker(pickerOpts);
+                await this.writeContentToDisk();
+            }
+            finally{
+                console.log("Save Completed");
+            }
+        }
+
+        
+    }
+
+    private async handleOpenExistingWhiteboardEvent (){
+        try{
+            const pickerOpts = {
+                types: [
+                    {
+                    description: 'whiteboard',
+                    accept: {
+                        'file/*': ['.w4fun'],
+                    },
+                    },
+                ],
+                excludeAcceptAllOption: true,
+                multiple: false,
+            };
+            // create a new handle
+            this._fileSystemHandler =  (await window.showOpenFilePicker(pickerOpts))[0];
+            let file =  await this._fileSystemHandler.getFile();
+            let json = await file.text();
+            return [file.name, json];
+        }
+        catch(err){
+            throw err;
+        }
+    }
+        
 
     private removeCompass(){
         if(this._activeCompass !== null) {
@@ -300,7 +391,34 @@ export class Whiteboard implements IEventHandler{
         this._activeRulers.clear();
     }
 
-    handle(eventData: BaseDrawingEvent): void {
+
+    private loadFile(){
+        try{
+            Promise.all([this.handleOpenExistingWhiteboardEvent()]).then((values)=>{
+                let svgloading = new SVGLoading(); 
+                window.setTimeout(()=>{
+                    if (this._drawingLayer){
+                            if (values.length > 0){
+                                let tuple = values[0];
+                                if (tuple){
+                                    this._data = JSON.parse(tuple[1]);
+                                    this._dataChanged = false;
+                                    Renderer.render(this._drawingLayer, this._data);
+                                    Whiteboard.updateDocumentTitle(tuple[0]);
+                                }
+                            }
+                        }
+                        svgloading.dispose();
+                    },1000);
+            
+            });
+        }
+        catch(err){
+            console.log(err);
+        }
+    }
+
+    handle(eventData: BaseDrawingEvent) {
         switch (eventData.eventType){
 
             case 'ClearCanvasDrawingEvent':
@@ -315,9 +433,6 @@ export class Whiteboard implements IEventHandler{
                 this.handlePenSelectedEvent(eventData as PenSelectedEvent)
                 break;
 
-            case 'PenDrawingCompletedEvent' :
-                this.handlePenDrawingCompletedEvent(eventData as PenDrawingCompletedEvent)
-                break;
 
             case 'PenMenuSettingsOpenEvent' :{
                     let penMenuSettingsOpenEvent = eventData as PenMenuSettingsOpenEvent;
@@ -342,11 +457,6 @@ export class Whiteboard implements IEventHandler{
                 this.handleEraserSelectedEvent(eventData as EraserSelectedEvent)
                 break;
 
-            case 'EraserDrawingCompletedEvent':
-                this.handlEraserDrawingCompletedEvent(eventData as EraserDrawingCompletedEvent)
-                break;
-            
-                EraserMenuSettingsOpenEvent
             case 'EraserMenuSettingsOpenEvent' :{
                     let eraserMenuSettingsOpenEvent = eventData as EraserMenuSettingsOpenEvent;
                     if (this._eraserMenu !== null){
@@ -394,20 +504,81 @@ export class Whiteboard implements IEventHandler{
                 break;
 
             case 'NewWhiteboardEvent' :
+               
+                if (this._drawingLayer){
+                    if (this._data.length > 0 && this._dataChanged){
+                        let dialog = document.getElementById("saveFileDialog") as HTMLDialogElement;
+                        if (dialog){
+                            dialog.addEventListener('close', () => {
+                                if (dialog.returnValue === 'Yes'){
+                                    Promise.all([ this.handleSaveWhiteboardEvent()]).then((values)=>{
+                                        this.reinitialize();
+                                    });
+                                }
+                            });
+                            dialog.showModal();
+                        }
+                    }
+                    else{
+                        this.reinitialize() ;
+                    }
+                }
+                break;
                 break;
 
             case 'SaveWhiteboardEvent':
+                this.handleSaveWhiteboardEvent();
                 break;
 
-            case 'OpenExistingWhiteboardEvent':
+            case 'OpenSavedWhiteboardEvent':
+
+                if (this._drawingLayer){
+                    if (this._data.length > 0 && this._dataChanged){
+                        let dialog = document.getElementById("saveFileDialog") as HTMLDialogElement;
+                        if (dialog){
+                            dialog.addEventListener('close', () => {
+                                if (dialog.returnValue === 'Yes'){
+                                    this.handleSaveWhiteboardEvent();
+                                    this.reinitialize();
+                                }
+                                this.loadFile();   
+                            });
+                            dialog.showModal();
+                        }
+                    }
+                    else{
+                        this.loadFile(); 
+                    }
+                }
+                break;
+
+            case 'ErasedLinesDrawingCompletedEvent' :
+                let erasedLinesDrawingCompletedEvent = eventData as ErasedLinesDrawingCompletedEvent;
+                this._data.push(erasedLinesDrawingCompletedEvent.erasedLine);
+                this._dataChanged = true;
+                break;
+            
+            case 'LinesDrawingCompletedEvent':
+                let linesDrawingCompletedEvent = eventData as LinesDrawingCompletedEvent;
+                this._data.push(linesDrawingCompletedEvent.line);
+                this._dataChanged = true;
+                break;
+            
+            case 'ArcsDrawingCompletedEvent':
+                let arcsDrawingCompletedEvent = eventData as ArcsDrawingCompletedEvent;
+                this._data.push(arcsDrawingCompletedEvent.arcs);
+                this._dataChanged = true;
                 break;
             
         }
     }
 
     reinitialize(){
-        let title = `Untitled - ${Whiteboard.getNewCounter()}`;
-        
+        Whiteboard.updateDocumentTitle(`untilted - ${Whiteboard.getNewCounter()}`);
+
+        this._data = new Array<Line | Arcs |ErasedLine>();
+        this._dataChanged = false;
+
         this._activePen?.dispose();
         this._activePen = null;
 

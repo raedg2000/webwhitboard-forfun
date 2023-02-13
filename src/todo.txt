@@ -1,3 +1,0 @@
-Fix loading of toolbox and Canvas
-
-On Clear disable the entire whiteboard

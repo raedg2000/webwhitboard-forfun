@@ -15,21 +15,6 @@ export class EraserSelectedEvent extends BaseDrawingEvent{
         return this._baseEraserSetting;
     }
 }
-
-export class EraserDrawingCompletedEvent extends BaseDrawingEvent{
-
-    private _line: Array<Point> ;
-
-    constructor(line: Array<Point>){
-        super('EraserDrawingCompletedEvent');
-        this._line = line;
-    }
-
-    get line() : Array<Point>{
-        return this._line;
-    }
-}
-
 export class EraserSettingsChangedEvent extends BaseDrawingEvent{
 
     private _eraserId : string;

@@ -33,6 +33,11 @@ export class Protractor extends BaseRuler implements IDispose{
         this.buildRulerEvents();
     }
 
+    get radius(): number{
+        return this._radius;
+    }
+
+
     private buildRulerEvents(){
 
 

@@ -6,19 +6,31 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Whiteboard</title>
         <link href="style.css" rel="stylesheet">
+        <link rel="shortcut icon" href="./images/Whiteboard4Fun.ico" />
     </head>
 
     <body id="whiteboard-body#1" oncontextmenu="return false;">
+            <dialog id="saveFileDialog">
+                <form method="dialog">
+                <p>
+                    Would you like to save the file before open a new file?
+                </p>
+                <div>
+                    <button id ="noBtn" value="No">No</button>
+                    <button id= "yesBtn" value="Yes">Yes</button>
+                </div>
+                </form>
+            </dialog>
             <div class="box1">
                 <div id="toolbox" class="box">
                     <div id="div-newFile#1" class="toolbox-item">
                         <svg id="svg-newFile#1" width="64" height="128">
                         </svg>
                     </div>
-                    <!-- <div id="div-openFile#1" class="toolbox-item" >
+                    <div id="div-openFile#1" class="toolbox-item" >
                         <svg id="svg-openFile#1" width="64" height="128">
                         </svg>
-                    </div> -->
+                    </div>
                     <div id="div-saveFile#1" class="toolbox-item">
                         <svg id="svg-saveFile#1" width="64" height="128">
                         </svg>

@@ -1,13 +1,13 @@
 import { BaseDrawingEvent } from "./BaseDrawingEvent";
 import { BasePenSettings } from "./BasePenSettings";
 import { BaseRuler, CapturedRulerInfo, RulersType } from "./BaseRuler";
+import { Arc, Arcs, ArcsDrawingCompletedEvent, Line, LinesDrawingCompletedEvent } from "./DrawingData";
 import { DrawingLayer } from "./DrawingLayer";
 import { EventAggregator } from "./EventAggregator";
 import { IDispose } from "./IDispose";
 import { IEventHandler } from "./IEventHandler";
 import { IMouseEventsHandler } from "./IMouseEventsHandler";
 import { IMouseMoveEvent, IMouseLeftButtonDownEvent, IMouseLeftButtonUpEvent } from "./MouseEvents";
-import { PenDrawingCompletedEvent } from "./PenDrawingEvents";
 import { Point } from "./Point";
 import { Protractor } from "./Protractor";
 import { RulerReleasedCapture } from "./RulerDrawingEvents";
@@ -21,7 +21,8 @@ export class Pen implements IMouseMoveEvent, IMouseLeftButtonDownEvent, IMouseLe
     private _lastPosition : Point| null  = null;
     private _drawingStarted : boolean = false;
     private _drawingLayer : DrawingLayer | null;
-    private _line:Array<Point> = new Array<Point>();
+    private _lines : Line = new Line();
+    private _arcs : Arcs = new Arcs();
     private _capturedRulerInfo : CapturedRulerInfo | null = null;
 
     constructor(id: string, settings : BasePenSettings, drawingLayer : DrawingLayer) {
@@ -29,6 +30,9 @@ export class Pen implements IMouseMoveEvent, IMouseLeftButtonDownEvent, IMouseLe
         this._settings = settings;
         this._drawingLayer = drawingLayer;
         
+        this._lines.color = settings.color;
+        this._lines.strokeWidth = settings.thickness;
+
         EventAggregator.subscribe('RulerReleasedCapture', this);
     }
 
@@ -42,6 +46,10 @@ export class Pen implements IMouseMoveEvent, IMouseLeftButtonDownEvent, IMouseLe
 
     set settings(value : BasePenSettings){
         this._settings = value;
+        this._lines.color = value.color;
+        this._lines.strokeWidth = value.thickness;
+        this._arcs.color = value.color;
+        this._arcs.strokeWidth = value.thickness;
     }
 
     get drawingStarted():boolean{
@@ -72,6 +80,7 @@ export class Pen implements IMouseMoveEvent, IMouseLeftButtonDownEvent, IMouseLe
         this._drawingStarted = true;
         if (this._startPosition === null){
             this._startPosition = data;
+            this._lines.points.push(data);
         }
         this._lastPosition = data;
     }
@@ -88,15 +97,27 @@ export class Pen implements IMouseMoveEvent, IMouseLeftButtonDownEvent, IMouseLe
     }
 
     OnMouseUp(data: Point): void {
-       this._startPosition = null;
-       this._lastPosition = null;
-       this._drawingStarted = false; 
+        this._startPosition = null;
+        this._lastPosition = null;
+        this._drawingStarted = false; 
 
-       let penDrawingCompletedEvent = new PenDrawingCompletedEvent(this._line);
-       EventAggregator.publish(penDrawingCompletedEvent);
+        
+        let linesDrawingCompletedEvent = new LinesDrawingCompletedEvent(this._lines);
+        EventAggregator.publish(linesDrawingCompletedEvent);
 
-       this._line = new Array<Point>();
-       this._drawingStarted = false;
+        if (this._capturedRulerInfo?.rulerType === RulersType.Protractor){
+            let arcsDrawingCompletedEvent = new ArcsDrawingCompletedEvent(this._arcs);
+            EventAggregator.publish(arcsDrawingCompletedEvent);
+        }
+        
+        this._lines = new Line();
+        this._lines.color = this.settings.color;
+        this._lines.strokeWidth = this.settings.thickness;
+        this._arcs = new Arcs();
+        this._arcs.color = this.settings.color;
+        this._arcs.strokeWidth = this.settings.thickness;
+
+        this._drawingStarted = false;
     }
 
     draw() {
@@ -113,9 +134,9 @@ export class Pen implements IMouseMoveEvent, IMouseLeftButtonDownEvent, IMouseLe
                 context.lineTo(this._lastPosition.x, this._lastPosition.y);
                 context.stroke();
                 context.closePath();
+                this._startPosition = this._lastPosition;
+                this._lines.points.push(this._lastPosition);
             }  
-
-            this._startPosition = this._lastPosition;
         }
     }
 
@@ -126,25 +147,35 @@ export class Pen implements IMouseMoveEvent, IMouseLeftButtonDownEvent, IMouseLe
             let context = this._drawingLayer?.canvas?.getContext('2d');
             if (context && this._startPosition !== null && this._lastPosition !== null && this._capturedRulerInfo !== null) {
 
-               let startAngle = Protractor.getAngle(this._startPosition, this._capturedRulerInfo.center);
-               let endAngle =    Protractor.getAngle(this._lastPosition, this._capturedRulerInfo.center);  
-      
+                let arc = new Arc();
+                arc.center = this._capturedRulerInfo.center; 
+                arc.startAngle = Protractor.getAngle(this._startPosition, this._capturedRulerInfo.center);
+                arc.endAngle =    Protractor.getAngle(this._lastPosition, this._capturedRulerInfo.center);  
+                arc.direction = Protractor.getDirection(arc.startAngle,  arc.endAngle);
+                let protractor = (this._capturedRulerInfo.targetRuler as Protractor);
+                arc.radius = protractor.radius + this.settings.thickness/2 + BaseRuler.Ruler_Shift;
+                
                 context.beginPath();
                 context.lineCap = "round";
                 context.strokeStyle = this._settings.color;
                 context.lineWidth = this._settings.thickness;
-                context.moveTo(this._startPosition.x, this._startPosition.y);
-                context.lineTo(this._lastPosition.x, this._lastPosition.y);
+                context.arc(arc.center.x, arc.center.y, arc.radius, arc.startAngle, arc.endAngle, arc.direction );
                 context.stroke();
                 context.closePath();
-            }  
 
+                this._arcs.arcsInfo.push(arc);
+            }  
+            
+           
+          
             this._startPosition = this._lastPosition;
         }
     }
+
     dispose(){
         this._drawingLayer = null;
-        this._line = [];
+        this._lines = new Line();
+        this._arcs = new Arcs();
         this._startPosition = null;
         this._lastPosition = null;
         this._drawingStarted = false;
@@ -154,6 +185,21 @@ export class Pen implements IMouseMoveEvent, IMouseLeftButtonDownEvent, IMouseLe
 
     handle(eventData: RulerReleasedCapture): void {
         if (eventData.id === this._capturedRulerInfo?.targetRuler.id){
+            let linesDrawingCompletedEvent = new LinesDrawingCompletedEvent(this._lines);
+            EventAggregator.publish(linesDrawingCompletedEvent);
+    
+            if (this._capturedRulerInfo?.rulerType === RulersType.Protractor){
+                let arcsDrawingCompletedEvent = new ArcsDrawingCompletedEvent(this._arcs);
+                EventAggregator.publish(arcsDrawingCompletedEvent);
+            }
+            
+            this._lines = new Line();
+            this._lines.color = this.settings.color;
+            this._lines.strokeWidth = this.settings.thickness;
+            this._arcs = new Arcs();
+            this._arcs.color = this.settings.color;
+            this._arcs.strokeWidth = this.settings.thickness;
+
             this._startPosition = null;
             this._lastPosition = null;
             this._drawingStarted = false;

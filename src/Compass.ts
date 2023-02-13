@@ -3,6 +3,7 @@
 import { BaseCompassSettings } from "./BaseCompassSettings";
 import { BaseDrawingEvent } from "./BaseDrawingEvent";
 import { CompassSettingsChangedEvent } from "./CompassDrawingEvents";
+import { Arc, Arcs, ArcsDrawingCompletedEvent } from "./DrawingData";
 import { DrawingLayer } from "./DrawingLayer";
 import { EventAggregator } from "./EventAggregator";
 import { IDispose } from "./IDispose";
@@ -62,6 +63,8 @@ export class Compass implements IEventHandler{
     private _radiusCoordinates = new Point(0,0);
     private _line:Array<Point> = new Array<Point>();
 
+    private _arcs : Arcs = new Arcs();
+
     constructor(id: string, settings : BaseCompassSettings, drawingLayer : DrawingLayer) {
         this._id = id;
         this._settings = settings;
@@ -80,6 +83,9 @@ export class Compass implements IEventHandler{
        
         this._compassRadiusTextRect = this.createCompassRadiusLengthTextRectangle(group);
         this._compassRadiusText = this.createCompassRadiusLengthText(group);
+
+        this._arcs.color = this.settings.color;
+        this._arcs.strokeWidth = this.settings.thickness;
 
         document.body.appendChild(this._svgCompassInstance)
         
@@ -100,6 +106,8 @@ export class Compass implements IEventHandler{
 
     set settings(value : BaseCompassSettings){
         this._settings = value;
+        this._arcs.color = value.color;
+        this._arcs.strokeWidth = value.thickness;
     }
 
     get drawingStarted():boolean{
@@ -548,20 +556,19 @@ export class Compass implements IEventHandler{
     private defineCompassPenEvents(){
         this._compassPen.addEventListener('pointerdown',  (event) => {
             document.body.style.touchAction ='none';
-            if (!this._locked && (event.pointerType !== 'mouse'  || (event.pointerType === 'mouse' && event.button === 0))){
-                
-                this._compassPen.style.cursor = 'grab';
+            if (!this._locked && (event.pointerType !== 'mouse'  || (event.pointerType === 'mouse' && event.buttons === 1))){
                 event.preventDefault();
                 event.stopPropagation();
+                this._compassPen.style.cursor = 'grab';
                 this.pencilDragging = true;
             }
-            else if (this._locked && (event.pointerType !== 'mouse'  || (event.pointerType === 'mouse' && event.button === 1))) 
-           
+            else if (this._locked && (event.pointerType !== 'mouse'  || (event.pointerType === 'mouse' && event.buttons === 1))){
                 event.preventDefault();
                 event.stopPropagation();
                 this._compassPen.style.cursor = 'grab';
                 this._drawingStarted = true;
                 this._compassPen.setPointerCapture(event.pointerId);
+            }
                 //this.handleClickEventToDrawOrRotate(event);
         });
 
@@ -570,6 +577,7 @@ export class Compass implements IEventHandler{
             pointerEvent.stopPropagation();
             pointerEvent.preventDefault();
             document.body.style.touchAction ='none';
+
             if (!this._locked && (event.pointerType !== 'mouse'  || (pointerEvent.pointerType === 'mouse'  && pointerEvent.buttons === 1)) && this.pencilDragging){
                 this._compassPen.style.cursor = 'grab';
                 
@@ -640,11 +648,17 @@ export class Compass implements IEventHandler{
             if (this._drawingStarted){
                 this._drawingStarted = false;
                 this._compassPen.releasePointerCapture(pointerEvent.pointerId);
+                let arcsDrawingCompletedEvent = new ArcsDrawingCompletedEvent(this._arcs);
+                EventAggregator.publish(arcsDrawingCompletedEvent);
+                this._arcs = new Arcs();
+                this._arcs.color = this.settings.color;
+                this._arcs.strokeWidth = this.settings.thickness;
             }
             else if (this.pencilDragging){
                 this.updateAngle();
                 this._compassPen.style.cursor = 'pointer';
             }
+            this._drawingStarted = false;
             this.pencilDragging = false;
         });
 
@@ -867,6 +881,11 @@ export class Compass implements IEventHandler{
             
             if (this.drawingBoxChecked){
                 this.drawArcUsingAngles(previousAngle, newAngle, direction);
+                let arcsDrawingCompletedEvent = new ArcsDrawingCompletedEvent(this._arcs);
+                EventAggregator.publish(arcsDrawingCompletedEvent);
+                this._arcs = new Arcs();
+                this._arcs.color = this.settings.color;
+                this._arcs.strokeWidth = this.settings.thickness;
             }
         }
     } 
@@ -947,6 +966,11 @@ export class Compass implements IEventHandler{
             
             if (this.drawingBoxChecked){
                 this.drawArcUsingAngles(previousAngle, newAngle, direction);
+                let arcsDrawingCompletedEvent = new ArcsDrawingCompletedEvent(this._arcs);
+                EventAggregator.publish(arcsDrawingCompletedEvent);
+                this._arcs = new Arcs();
+                this._arcs.color = this.settings.color;
+                this._arcs.strokeWidth = this.settings.thickness;
             }
         }
     } 
@@ -958,7 +982,14 @@ export class Compass implements IEventHandler{
         if (context && this.drawingBoxChecked && this._locked) {
             
             let x1 = Number(this._compassRadius.getAttribute('x1')) ;
-            let y1 = Number(this._compassRadius.getAttribute('y1')) ;  
+            let y1 = Number(this._compassRadius.getAttribute('y1')) ; 
+            
+            let arc = new Arc();
+            arc.center = new Point(x1, y1);
+            arc.radius = this._radius;
+            arc.startAngle = startAngle;
+            arc.endAngle = endAngle
+            arc.direction = direction;
 
             context.save();
 
@@ -971,6 +1002,7 @@ export class Compass implements IEventHandler{
             context.stroke();
 
             context.restore();
+            this._arcs.arcsInfo.push(arc);
         }
 
     }
@@ -1110,7 +1142,6 @@ export class Compass implements IEventHandler{
        let rotationDirection = this.getRotationDirection(pointerEVent, x2_copy_before_rotation, y2_copy_before_rotation, x2_after_before_rotation, y2_after_before_rotation);
        
         if (this.drawingBoxChecked && Math.abs(startAngleInRadians) !== Math.abs(endAngleInRadians)){
-            console.log(startAngleInRadians, endAngleInRadians, rotationDirection);
             this.drawArcUsingAngles(startAngleInRadians, endAngleInRadians, rotationDirection);
         }
 

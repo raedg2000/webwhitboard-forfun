@@ -18,6 +18,9 @@ import { ToolBoxPointerSelectedEvent } from "./ToolboxPointerSelectedEvent";
 import { AddRulerEvent, RemoveRulerEvent } from "./RulerDrawingEvents";
 import { AddCompassEvent, RemoveCompassEvent } from "./CompassDrawingEvents";
 import { RulersType } from "./BaseRuler";
+import { SaveWhiteboardEvent } from "./SaveFileDrawingEvents";
+import { OpenSavedWhiteboardEvent } from "./OpenSavedWhiteboardEvent";
+import { NewWhiteboardEvent } from "./NewFileDrawingEvents";
 
 
 export class ToolBox{
@@ -27,7 +30,7 @@ export class ToolBox{
     constructor(){
 
         this.initializeNewFile ('svg-newFile#1');
-        // this.initializeOpenFile('svg-openFile#1');
+        this.initializeOpenFile('svg-openFile#1');
         this.initializeSaveFile('svg-saveFile#1');
 
         this.initializeClear('svg-clearCanvas#1');
@@ -76,10 +79,10 @@ export class ToolBox{
         this._toolboxItems.set(id, newFileBtn);
         newFileBtn.drawNewFileSVG();
    
-        // let openFile_toolboxItem = document.getElementById(id);
-        // if (openFile_toolboxItem){
-        //     openFile_toolboxItem.addEventListener(`click`, this.openFile_clicked);
-        // }
+        newFileBtn.divElement?.addEventListener(`click`, (event) =>{
+            let newWhiteboardEvent = new NewWhiteboardEvent(id, ToolBoxItemType.NewFile );
+            EventAggregator.publish(newWhiteboardEvent);
+        });
         
     }
 
@@ -88,10 +91,10 @@ export class ToolBox{
         this._toolboxItems.set(id, openFileBtn);
         openFileBtn.drawOpenFileSVG();
    
-        // let openFile_toolboxItem = document.getElementById(id);
-        // if (openFile_toolboxItem){
-        //     openFile_toolboxItem.addEventListener(`click`, this.openFile_clicked);
-        // }
+        openFileBtn.divElement?.addEventListener(`click`, (event) =>{
+            let openExistingWhiteboardEvent = new OpenSavedWhiteboardEvent(id, ToolBoxItemType.OpenFile );
+            EventAggregator.publish(openExistingWhiteboardEvent);
+        });
         
     }
 
@@ -99,10 +102,11 @@ export class ToolBox{
         let saveFileBtn = new SaveFileToolboxItem(id);        
         this._toolboxItems.set(id, saveFileBtn);
         saveFileBtn.drawSaveFileSVG();
-        // let saveFile_toolboxItem = document.getElementById(id);
-        // if (saveFile_toolboxItem){
-        //     saveFile_toolboxItem.addEventListener(`click`, this.saveFile_clicked);
-        // }
+
+        saveFileBtn.divElement?.addEventListener(`click`, (event) =>{
+            let saveWhiteboardEvent = new SaveWhiteboardEvent(id, ToolBoxItemType.Save );
+            EventAggregator.publish(saveWhiteboardEvent);
+        });
        
     }
 
