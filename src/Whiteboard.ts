@@ -27,6 +27,7 @@ import { Arc, Arcs, ArcsDrawingCompletedEvent, ErasedLine, ErasedLinesDrawingCom
 import { OpenSavedWhiteboardEvent } from "./OpenSavedWhiteboardEvent";
 import { Renderer } from "./Renderer";
 import { SVGLoading } from "./SVGLoading";
+import { AboutEvent } from "./AboutEvent";
 
 
 export class Whiteboard implements IEventHandler{
@@ -98,6 +99,8 @@ export class Whiteboard implements IEventHandler{
         EventAggregator.subscribe('LinesDrawingCompletedEvent', this);
         EventAggregator.subscribe('ArcsDrawingCompletedEvent', this);
         EventAggregator.subscribe('ErasedLinesDrawingCompletedEvent', this);
+
+        EventAggregator.subscribe('AboutEvent', this);
     }
 
     private initializeDrawingLayer(){
@@ -401,8 +404,8 @@ export class Whiteboard implements IEventHandler{
                             if (values.length > 0){
                                 let tuple = values[0];
                                 if (tuple){
+                                    this.reinitialize();
                                     this._data = JSON.parse(tuple[1]);
-                                    this._dataChanged = false;
                                     Renderer.render(this._drawingLayer, this._data);
                                     Whiteboard.updateDocumentTitle(tuple[0]);
                                 }
@@ -539,7 +542,6 @@ export class Whiteboard implements IEventHandler{
                             dialog.addEventListener('close', () => {
                                 if (dialog.returnValue === 'Yes'){
                                     this.handleSaveWhiteboardEvent();
-                                    this.reinitialize();
                                 }
                                 this.loadFile();   
                             });
@@ -570,6 +572,13 @@ export class Whiteboard implements IEventHandler{
                 this._dataChanged = true;
                 break;
             
+
+            case 'AboutEvent':
+                let aboutDialog = document.getElementById("aboutDialog") as HTMLDialogElement;
+                if (aboutDialog){
+                    aboutDialog.showModal();
+                }
+                break;
         }
     }
 
@@ -593,7 +602,10 @@ export class Whiteboard implements IEventHandler{
 
         this.removeAllRules();
         this._drawingLayer?.clear();
-
+        let canvas = this._drawingLayer?.canvas;
+        if (canvas){
+            canvas.style.cursor = 'auto';
+        }
         this._toolbox.resetSelection();
     }
 }

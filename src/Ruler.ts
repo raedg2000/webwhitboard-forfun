@@ -95,10 +95,11 @@ export class Ruler extends BaseRuler implements IDispose{
                 document.body.style.touchAction ='none';
                 if (this.touchFingure1 && this.touchFingure2 && this.touchFingure2.pointerId === pointerEvent.pointerId){
                     this.touchFingure1_IsCenter = true;
-                    this.touchFingure2 = pointerEvent;
-                    this.RotateByTouch();
+                    // this.touchFingure2 = pointerEvent;
+                    this.RotateByTouch(pointerEvent);
                     return;
                 }
+                
             }
 
             if ((pointerEvent.pointerType !== 'mouse') || (pointerEvent.pointerType === 'mouse' && this._startDragging && pointerEvent.buttons === 1)){
@@ -187,28 +188,9 @@ export class Ruler extends BaseRuler implements IDispose{
         });
     }
 
-    private RotateByTouch () {
+    private RotateByTouch (pointerEvent: PointerEvent) {
 
-        let x1 = Number(this.touchFingure1?.clientX) ;
-        let y1 = Number(this.touchFingure1?.clientY) ; 
-        let x2 = Number(this.touchFingure2?.clientX) ;
-        let y2 = Number(this.touchFingure2?.clientY) ;
-        
-        let Rx = x2 - x1;
-        let Ry = -(y2 - y1);
-        let angle = Math.round(Math.atan(Ry/Rx) * 180/ Math.PI);
-        if (Ry > 0 && Rx > 0)
-        {
-            angle = -1*angle;
-        }
-        else if ((Ry > 0 && Rx < 0) || (Ry < 0 && Rx < 0)){
-            angle = -1* (180 + angle);
-        }
-        else if (Ry < 0 && Rx > 0)
-        {
-            angle = -1*(360 + angle);
-        }
-        this._angleOfRotation = angle;
+        this.updateAngleOfRotationDueToTouch(pointerEvent);
 
         this._svgRulerInstance.style.transformBox = 'fill-box';
         this._svgRulerInstance.style.transformOrigin ='center';
@@ -225,6 +207,8 @@ export class Ruler extends BaseRuler implements IDispose{
             this._svgAngleIndicator.childNodes[0].nodeValue = (-1*this._angleOfRotation).toString() + '°';
        
         }
+
+        this.touchFingure2 = pointerEvent;
     }
 
     private drawUpperMarkers(parent : SVGElement) {

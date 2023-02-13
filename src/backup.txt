@@ -1,0 +1,119 @@
+    <!-- <div class="box1">
+                <div id="toolbox" class="box">
+                    <div id="div-newFile#1" class="toolbox-item">
+                        <svg id="svg-newFile#1" width="64" height="124">
+                        </svg>
+                    </div>
+                    <div id="div-openFile#1" class="toolbox-item" >
+                        <svg id="svg-openFile#1" width="64" height="124">
+                        </svg>
+                    </div>
+                    <div id="div-saveFile#1" class="toolbox-item">
+                        <svg id="svg-saveFile#1" width="64" height="124">
+                        </svg>
+                    </div>
+
+                    <div id="div-clearCanvas#1" class="toolbox-item" >
+                        <svg id="svg-clearCanvas#1" width="64" height="124" class="clearCanvasToolBoxItem">
+                        </svg>
+                    </div>
+
+                    <div id="div-pointer#1" class="toolbox-item">
+                        <svg id="svg-pointer#1" width="64" height="124">
+                            <image href="./images/pointer.png" x="0" y="0" height="124" width="64"/>
+                        </svg>
+                    </div>
+
+                    <div id="div-pen#1" class="toolbox-item">
+                        <svg id="svg-pen#1" width="64" height="124">
+                        </svg>
+                        
+                    </div>
+                    <div id="div-pen#2" class="toolbox-item">
+                        <svg id="svg-pen#2" width="64" height="124">
+                        </svg>
+                    </div>
+                    <div id="div-pen#3" class="toolbox-item">
+                        <svg id="svg-pen#3" width="64" height="124">
+                        </svg>
+                    </div>
+                    <div id="div-pen#4" class="toolbox-item">
+                        <svg id="svg-pen#4" width="64" height="124" >
+                        </svg>
+                    </div>
+                    <div id="div-pen#5" class="toolbox-item">
+                        <svg id="svg-pen#5" width="64" height="124">
+                        </svg>
+                    </div>
+
+                    <div id="div-pen#6" class="toolbox-item">
+                        <svg id="svg-pen#6" width="64" height="124">
+                        </svg>
+                    </div>
+
+                    <!-- <div id="div-pen#7" class="toolbox-item">
+                        <svg id="svg-pen#7" width="64" height="124">
+                        </svg>
+                    </div>
+
+                    <div id="div-pen#8" class="toolbox-item">
+                        <svg id="svg-pen#8" width="64" height="124">
+                        </svg>
+                    </div>
+
+                    <div id="div-pen#9" class="toolbox-item">
+                        <svg id="svg-pen#9" width="64" height="124">
+                        </svg>
+                    </div>
+                    <div id="div-pen#10" class="toolbox-item">
+                        <svg id="svg-pen#10" width="50" height="124">
+                        </svg>
+                    </div>
+                    <div id="div-pen#11" class="toolbox-item">
+                        <svg id="svg-pen#11" width="64" height="124">
+                        </svg>
+                    </div>
+
+                    <div id="div-pen#12" class="toolbox-item">
+                        <svg id="svg-pen#12" width="64" height="124">
+                        </svg>
+                    </div> -->
+
+    <!-- <div id="div-pen#100" class="toolbox-item">
+        <svg id="svg-pen#100" width="64" height="124">
+        </svg>
+    </div>
+
+    <div id="div-compass#1" class="toolbox-item toolbox-item-tools">
+        <svg id="svg-compass#1" width="64" height="124">
+
+        </svg>
+    </div>
+
+    <div id="div-ruler#1" class="toolbox-item toolbox-item-tools">
+        <svg id="svg-ruler#1" width="64" height="124">
+            <image href="./images/ruler.png" x="0" y="25" height="64px" width="64px" />
+            <text x="0" , y="100" class="svgText">Ruler</text>
+        </svg>
+    </div>
+    <div id="div-ruler#2" class="toolbox-item toolbox-item-tools">
+        <svg id="svg-ruler#2" width="64" height="124">
+            <image href="./images//protractor.png" x="0" y="25" height="64px" width="64px" />
+            <text x="0" , y="100" class="svgText">Protractor</text>
+        </svg>
+    </div>
+    <div id="div-ruler#3" class="toolbox-item toolbox-item-tools">
+        <svg id="svg-ruler#3" width="64" height="124">
+            <image href="./images/setSquare.png" x="0" y="25" height="55px" width="55px" />
+            <text x="0" , y="100" class="svgText">Set Square</text>
+        </svg>
+    </div>
+
+    <div id="div-about#1" class="toolbox-item toolbox-item-tools">
+        <svg id="div-about#" width="64" height="124">
+            <image href="./images/logo.png" x="0" y="25" height="55px" width="55px" />
+            <text x="10" , y="100" class="svgText">About</text>
+        </svg>
+    </div>
+    </div>
+    </div>  -->

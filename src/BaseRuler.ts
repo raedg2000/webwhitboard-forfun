@@ -103,6 +103,50 @@ export abstract class BaseRuler{
 
     abstract mapPenPosition(distanceToRuler : CapturedRulerInfo, mousePosition: Point, strokeThickness : number ):Point ;
 
+    protected updateAngleOfRotationDueToTouch(pointerEvent: PointerEvent){
+        
+        let x1 = Number(this.touchFingure1?.clientX) ;
+        let y1 = Number(this.touchFingure1?.clientY) ; 
+        let x2 = Number(this.touchFingure2?.clientX) ;
+        let y2 = Number(this.touchFingure2?.clientY) ;
+
+        let x2_1 = Number(pointerEvent.clientX) ;
+        let y2_1 = Number(pointerEvent.clientY) ;
+        
+        let Rx = x2 - x1;
+        let Ry = -(y2 - y1);
+        let angle = Math.round(Math.atan(Ry/Rx) * 180/ Math.PI);
+        if (Ry > 0 && Rx > 0)
+        {
+            angle = -1*angle;
+        }
+        else if ((Ry > 0 && Rx < 0) || (Ry < 0 && Rx < 0)){
+            angle = -1* (180 + angle);
+        }
+        else if (Ry < 0 && Rx > 0)
+        {
+            angle = -1*(360 + angle);
+        }
+
+
+        Rx = x2_1 - x1;
+        Ry = -(y2_1 - y1);
+        let angle1 = Math.round(Math.atan(Ry/Rx) * 180/ Math.PI);
+        if (Ry > 0 && Rx > 0)
+        {
+            angle1 = -1*angle1;
+        }
+        else if ((Ry > 0 && Rx < 0) || (Ry < 0 && Rx < 0)){
+            angle1 = -1* (180 + angle1);
+        }
+        else if (Ry < 0 && Rx > 0)
+        {
+            angle1 = -1*(360 + angle1);
+        }
+
+        
+        this._angleOfRotation = (this._angleOfRotation + angle1 - angle ) % 360;
+    }
     capture(pointerId: number):void{
         this._captured = true;
         this._svgRulerInstance.setPointerCapture(pointerId);
@@ -113,6 +157,7 @@ export abstract class BaseRuler{
         this._svgRulerInstance.releasePointerCapture(pointerId);
     }
     
+
     dispose(){
         document.body.removeChild(this._svgRulerInstance);
     }

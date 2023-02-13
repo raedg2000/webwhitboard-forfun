@@ -1,150 +1,422 @@
-
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Whiteboard</title>
-        <link href="style.css" rel="stylesheet">
-        <link rel="shortcut icon" href="./images/Whiteboard4Fun.ico" />
-    </head>
 
-    <body id="whiteboard-body#1" oncontextmenu="return false;">
-            <dialog id="saveFileDialog">
-                <form method="dialog">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Whiteboard</title>
+    <link href="style.css" rel="stylesheet">
+    <link rel="shortcut icon" href="./images/Whiteboard4Fun.ico" />
+</head>
+
+<body id="whiteboard-body#1" oncontextmenu="return false;">
+
+    <dialog id="aboutDialog">
+        <form method="dialog">
+            <p>
+                <p>There is a free website. I developed it for fun.</p>
+                <p>It based on my work at KueMinds (a company I cofounded three years ago).</p>
+                <p>Some of the icons I used, were acquired by KueMinds from Icons8.</p>
+
                 <p>
-                    Would you like to save the file before open a new file?
+                    This site is developed by <a href="https://www.linkedin.com/in/raed-gharzeddine/">Raed Gharzeddine</a>
                 </p>
-                <div>
-                    <button id ="noBtn" value="No">No</button>
-                    <button id= "yesBtn" value="Yes">Yes</button>
+            </p>
+            <divs style="display: flex; align-items: center;justify-content: center;">
+                <button id="okBtn" value="Ok">OK</button>
                 </div>
-                </form>
-            </dialog>
-            <div class="box1">
-                <div id="toolbox" class="box">
-                    <div id="div-newFile#1" class="toolbox-item">
-                        <svg id="svg-newFile#1" width="64" height="128">
-                        </svg>
-                    </div>
-                    <div id="div-openFile#1" class="toolbox-item" >
-                        <svg id="svg-openFile#1" width="64" height="128">
-                        </svg>
-                    </div>
-                    <div id="div-saveFile#1" class="toolbox-item">
-                        <svg id="svg-saveFile#1" width="64" height="128">
-                        </svg>
-                    </div>
+        </form>
+    </dialog>
 
-                    <div id="div-clearCanvas#1" class="toolbox-item" >
-                        <svg id="svg-clearCanvas#1" width="64" height="128" class="clearCanvasToolBoxItem">
-                        </svg>
-                    </div>
+    <dialog id="saveFileDialog">
+        <form method="dialog">
+            <p>
+                Would you like to save the file before open a new file?
+            </p>
+            <div style="display: flex; align-items: center;justify-content: center;">
+                <button id="noBtn" value="No" style="margin: 10px;">No</button>
+                <button id="yesBtn" value="Yes" style="margin: 10px;">Yes</button>
+            </div>
+        </form>
+    </dialog>
 
-                    <div id="div-pointer#1" class="toolbox-item">
-                        <svg id="svg-pointer#1" width="64" height="128">
-                            <image href="./images/pointer.png" x="0" y="0" height="128" width="64"/>
-                        </svg>
-                    </div>
-
-                    <div id="div-pen#1" class="toolbox-item">
-                        <svg id="svg-pen#1" width="64" height="128">
-                        </svg>
-                        
-                    </div>
-                    <div id="div-pen#2" class="toolbox-item">
-                        <svg id="svg-pen#2" width="64" height="128">
-                        </svg>
-                    </div>
-                    <div id="div-pen#3" class="toolbox-item">
-                        <svg id="svg-pen#3" width="64" height="128">
-                        </svg>
-                    </div>
-                    <div id="div-pen#4" class="toolbox-item">
-                        <svg id="svg-pen#4" width="64" height="128" >
-                        </svg>
-                    </div>
-                    <div id="div-pen#5" class="toolbox-item">
-                        <svg id="svg-pen#5" width="64" height="128">
-                        </svg>
-                    </div>
-
-                    <div id="div-pen#6" class="toolbox-item">
-                        <svg id="svg-pen#6" width="64" height="128">
-                        </svg>
-                    </div>
-
-                    <!-- <div id="div-pen#7" class="toolbox-item">
-                        <svg id="svg-pen#7" width="64" height="128">
-                        </svg>
-                    </div>
-
-                    <div id="div-pen#8" class="toolbox-item">
-                        <svg id="svg-pen#8" width="64" height="128">
-                        </svg>
-                    </div>
-
-                    <div id="div-pen#9" class="toolbox-item">
-                        <svg id="svg-pen#9" width="64" height="128">
-                        </svg>
-                    </div>
-                    <div id="div-pen#10" class="toolbox-item">
-                        <svg id="svg-pen#10" width="50" height="128">
-                        </svg>
-                    </div>
-                    <div id="div-pen#11" class="toolbox-item">
-                        <svg id="svg-pen#11" width="64" height="128">
-                        </svg>
-                    </div>
-
-                    <div id="div-pen#12" class="toolbox-item">
-                        <svg id="svg-pen#12" width="64" height="128">
-                        </svg>
-                    </div> -->
-
-                    <div id="div-pen#100" class="toolbox-item">
-                        <svg id="svg-pen#100" width="64" height="128">
-                        </svg>
-                    </div>
-
-                    <div id="div-compass#1" class="toolbox-item toolbox-item-tools">
-                        <svg id="svg-compass#1" width="64" height="128">
-                        
-                        </svg>
-                    </div>
-                    
-                    <div id="div-ruler#1"  class="toolbox-item toolbox-item-tools">
-                        <svg id="svg-ruler#1" width="64" height="128">
-                            <image href="./images/ruler.png" x="0" y="25" height="64px" width="64px"/>
-                            <text x="0", y="100" class="svgText">Ruler</text>
-                        </svg>
-                    </div>
-                    <div id="div-ruler#2" class="toolbox-item toolbox-item-tools" >
-                        <svg id="svg-ruler#2" width="64" height="128">
-                            <image href="./images//protractor.png" x="0" y="25" height="64px" width="64px"/>
-                            <text x="0", y="100"  class="svgText">Protractor</text>
-                        </svg>
-                    </div>
-                    <div id="div-ruler#3" class="toolbox-item toolbox-item-tools">
-                        <svg id="svg-ruler#3" width="64" height="128">
-                            <image href="./images/setSquare.png" x="0" y="25" height="55px" width="55px"/>
-                            <text x="0", y="100"  class="svgText">Set Square</text>
-                        </svg>
-                    </div>
-
-                    <div id="div-about#1" class="toolbox-item toolbox-item-tools">
-                        <svg id="div-about#" width="64" height="128">
-                            <image href="./images/logo.png" x="0" y="25" height="55px" width="55px"/>
-                            <text x="10", y="100"  class="svgText">About</text>
-                        </svg>
-                    </div>
-                </div>
+    <div class="box1">
+        <div id="toolbox" class="box">
+            <div id="div-newFile#1" class="toolbox-item">
+                <svg id="svg-newFile#1" width="64" height="124">
+                    <g id="newFileShape#1" style="pointer-events: auto">
+                        <path d=" M 6.4 31 
+            L 41.6 31 
+            L 51.2 40.6
+            L 51.2 82.45
+            L 6.4 82.45
+            L 6.4 31 
+                            " stroke="#000000" stroke-width="0.5" fill="#FFFFFF"></path>
+                        <path d=" M 41.6 31 
+                            L 41.6 40.6
+                            L 51.2 40.6
+                            L 41.6 31 
+                             " stroke="#FFFFFF" stroke-width="0.5" fill="#C8E6C9"></path>
+                        <circle stroke-width="0.5" cx="44.800000000000004" cy="69.65" r="12.8" fill="#66BB6A"></circle>
+                        <rect x="33" y="68.15" stroke="transparent" stroke-width="0.5" height="3" width="23.6"
+                            fill="#C8E6C9"></rect>
+                        <rect x="43.300000000000004" y="57.85" stroke="transparent" stroke-width="0.5" height="23.6"
+                            width="3" fill="#C8E6C9"></rect><text x="11.4" y="100.45" class="svgText">New</text>
+                    </g>
+                </svg>
+            </div>
+            <div id="div-openFile#1" class="toolbox-item">
+                <svg id="svg-openFile#1" width="64" height="124">
+                    <g id="openFileShape#1" style="pointer-events: auto">
+                        <path d=" M 6.4 31 
+                            L 25.6 31 
+                            L 32 37.4
+                            L 51.2 37.4
+                            L 51.2 83.9
+                            L 6.4 83.9
+                            L 6.4 31 
+                        " stroke="#FFF9C4" stroke-width="0.5" fill="#FBC02D"></path>
+                        <path d=" M 6.4 83.9 
+                            L 12.8 46
+                            L 24.2 46
+                            L 29.2 41
+                            L 56.2 41
+                            L 51.2 83.9
+                            L 6.4 83.9
+                            L 6.4 31 
+                            " stroke="#FFF9C4" stroke-width="0.5" fill="#FDD835"></path>
+                        <text x="6.4" y="101.9"
+                            class="svgText">Open</text>
+                    </g>
+                </svg>
+            </div>
+            <div id="div-saveFile#1" class="toolbox-item">
+                <svg id="svg-saveFile#1" width="64" height="124">
+                    <g id="saveFileShape#1" style="pointer-events: auto">
+                        <path d=" M 6.4 31 
+                                L 51.2 31 
+                                L 57.6 37.4
+                                L 57.6 83.9
+                                L 6.4 83.9
+                                L 6.4 31 
+                            " stroke="#000000" stroke-width="0.5" fill="#0288D1"></path>
+                        <rect x="11.4" y="31" stroke="transparent" stroke-width="0.5" height="20"
+                            width="34.800000000000004" fill="#0D47A1"></rect>
+                        <rect x="16.4" y="31" stroke="transparent" stroke-width="0.5" height="20"
+                            width="34.800000000000004" fill="#CFD8DC"></rect>
+                        <rect x="39.2" y="33" stroke="transparent" stroke-width="0.5" height="16" width="10"
+                            fill="#0288D1"></rect>
+                        <rect x="11.4" y="68.9" stroke="transparent" stroke-width="0.5" height="15"
+                            width="39.800000000000004" fill="#CFD8DC"></rect><text x="11.4" y="101.9"
+                            class="svgText">Save</text>
+                    </g>
+                </svg>
             </div>
 
-            <div id="drawingLayer_container">
-                <canvas id="whiteboard_canvas#1" width="10000" height="10000" class="drawingLayer"></canvas>
+            <div id="div-clearCanvas#1" class="toolbox-item">
+                <svg id="svg-clearCanvas#1" width="64" height="124" class="clearCanvasToolBoxItem">
+                    <g id="clearCanvasShape#1" style="pointer-events: auto">
+                        <rect x="4.4" y="31" stroke="#1976D2" stroke-width="0.5" height="5" width="55.2" fill="#1976D2">
+                        </rect>
+                        <path d=" M 6.4 36 
+                                L 57.6 36 
+                                L 44.8 82.5
+                                L 19.200000000000003 82.5
+                                L 6.4 36 
+                            " stroke="#1976D2" stroke-width="1.5" fill="#4FC3F7"></path>
+                        <text x="11.4" y="100.5" class="svgText">Clear</text>
+                    </g>
+                </svg>
             </div>
 
-        <script type="module" src="bundle.js"></script>
-    </body>
+            <div id="div-pointer#1" class="toolbox-item">
+                <svg id="svg-pointer#1" width="64" height="124">
+                    <image href="./images/pointer.png" x="0" y="0" height="124" width="64"></image>
+                </svg>
+            </div>
+
+            <div id="div-pen#1" class="toolbox-item">
+                <svg id="svg-pen#1" width="64" height="124">
+                    <g id="penShape#1" style="pointer-events: auto">
+                        <path d=" M 32 12.4 
+                               L 22 37.4 
+                               L 22 77.4
+                               L 42 77.4
+                               L 42 37.4
+                               L 32 12.4 
+                              " stroke="#000000" stroke-width="1" fill="transparent"></path>
+                        <path id="penTip#1" d=" M 32 12.4 
+                                L 27 24.9 
+                                L 37 24.9 
+                                L 32 12.4 
+                            " stroke="transparent" stroke-width="0.5" fill="#000000"></path>
+                        <rect id="colorSection#1" x="22.5" y="37.4" stroke="transparent" stroke-width="0.5"
+                            height="40.00000000000001" width="19" fill="#000000"></rect>
+                        <rect id="pen-svg-thickness-section#1" x="22" y="77.4" stroke="#000000" stroke-width="1"
+                            height="30" width="20" fill="transparent" style="pointer-events: auto"></rect>
+                        <rect data-x="24" data-y="92.4" id="pen-svg-thickness-rect#1" stroke="#000000"
+                            stroke-width="0.5" style="pointer-events: none" width="16" x="24" y="91.9" height="1"
+                            fill="#000000"></rect>
+                        <path id="penMenuExpander#1" d=" M 25 114.4 
+                                    L 32 122.4 
+                                    L 39 114.4 
+                                    L 25 114.4 
+                                " stroke="transparent" stroke-width="0.5" fill="Gray" style="pointer-events: auto" data-enabled="false">
+                                                </path>
+                    </g>
+                </svg>
+
+            </div>
+            <div id="div-pen#2" class="toolbox-item">
+                <svg id="svg-pen#2" width="64" height="124">
+                    <g id="penShape#2" style="pointer-events: auto">
+                        <path d=" M 32 12.4 
+                               L 22 37.4 
+                               L 22 77.4
+                               L 42 77.4
+                               L 42 37.4
+                               L 32 12.4 
+                              " stroke="#000000" stroke-width="1" fill="transparent">
+                        </path>
+                        <path id="penTip#2" d=" M 32 12.4 
+                                L 27 24.9 
+                                L 37 24.9 
+                                L 32 12.4 
+                            " stroke="transparent" stroke-width="0.5" fill="#008000">
+                        </path>
+                        <rect id="colorSection#2" x="22.5" y="37.4" stroke="transparent" stroke-width="0.5"
+                            height="40.00000000000001" width="19" fill="#008000"></rect>
+                        <rect id="pen-svg-thickness-section#2" x="22" y="77.4" stroke="#000000" stroke-width="1"
+                            height="30" width="20" fill="transparent" style="pointer-events: auto"></rect>
+                        <rect data-x="24" data-y="92.4" id="pen-svg-thickness-rect#2" stroke="#008000"
+                            stroke-width="0.5" style="pointer-events: none" width="16" x="24" y="91.9" height="1"
+                            fill="#008000"></rect>
+                        <path id="penMenuExpander#2" d=" M 25 114.4 
+                                L 32 122.4 
+                                L 39 114.4 
+                                L 25 114.4 
+                            " stroke="transparent" stroke-width="0.5" fill="Gray" style="pointer-events: auto" data-enabled="false">
+                        </path>
+                    </g>
+                </svg>
+            </div>
+            <div id="div-pen#3" class="toolbox-item">
+                <svg id="svg-pen#3" width="64" height="124">
+                    <g id="penShape#3" style="pointer-events: auto">
+                        <path d=" M 32 12.4 
+                               L 22 37.4 
+                               L 22 77.4
+                               L 42 77.4
+                               L 42 37.4
+                               L 32 12.4 
+                              " stroke="#000000" stroke-width="1" fill="transparent">
+                        </path>
+                        <path id="penTip#3" d=" M 32 12.4 
+                            L 27 24.9 
+                            L 37 24.9 
+                            L 32 12.4 
+                            " stroke="transparent" stroke-width="0.5" fill="#FF0000">
+                        </path>
+                        <rect id="colorSection#3" x="22.5" y="37.4" stroke="transparent" stroke-width="0.5"
+                            height="40.00000000000001" width="19" fill="#FF0000"></rect>
+                        <rect id="pen-svg-thickness-section#3" x="22" y="77.4" stroke="#000000" stroke-width="1"
+                            height="30" width="20" fill="transparent" style="pointer-events: auto"></rect>
+                        <rect data-x="24" data-y="92.4" id="pen-svg-thickness-rect#3" stroke="#FF0000"
+                            stroke-width="0.5" style="pointer-events: none" width="16" x="24" y="91.9" height="1"
+                            fill="#FF0000"></rect>
+                        <path id="penMenuExpander#3" d=" M 25 114.4 
+                                L 32 122.4 
+                                L 39 114.4 
+                                L 25 114.4 
+                            " stroke="transparent" stroke-width="0.5" fill="Gray" style="pointer-events: auto" data-enabled="false">
+                                            </path>
+                    </g>
+                </svg>
+            </div>
+            <div id="div-pen#4" class="toolbox-item">
+                <svg id="svg-pen#4" width="64" height="124">
+                    <g id="penShape#4" style="pointer-events: auto">
+                        <path d=" M 32 12.4 
+                               L 22 37.4 
+                               L 22 77.4
+                               L 42 77.4
+                               L 42 37.4
+                               L 32 12.4 
+                              " stroke="#000000" stroke-width="1" fill="transparent">
+                        </path>
+                        <path id="penTip#4" d=" M 32 12.4 
+                                L 27 24.9 
+                                L 37 24.9 
+                                L 32 12.4 
+                            " stroke="transparent" stroke-width="0.5" fill="#FFFF00">
+                        </path>
+                        <rect id="colorSection#4" x="22.5" y="37.4" stroke="transparent" stroke-width="0.5"
+                            height="40.00000000000001" width="19" fill="#FFFF00"></rect>
+                        <rect id="pen-svg-thickness-section#4" x="22" y="77.4" stroke="#000000" stroke-width="1"
+                            height="30" width="20" fill="transparent" style="pointer-events: auto"></rect>
+                        <rect data-x="24" data-y="92.4" id="pen-svg-thickness-rect#4" stroke="#FFFF00"
+                            stroke-width="0.5" style="pointer-events: none" width="16" x="24" y="91.9" height="1"
+                            fill="#FFFF00"></rect>
+                        <path id="penMenuExpander#4" d=" M 25 114.4 
+            L 32 122.4 
+            L 39 114.4 
+            L 25 114.4 
+           " stroke="transparent" stroke-width="0.5" fill="Gray" style="pointer-events: auto" data-enabled="false">
+                        </path>
+                    </g>
+                </svg>
+            </div>
+            <div id="div-pen#5" class="toolbox-item">
+                <svg id="svg-pen#5" width="64" height="124">
+                    <g id="penShape#5" style="pointer-events: auto">
+                        <path d=" M 32 12.4 
+                               L 22 37.4 
+                               L 22 77.4
+                               L 42 77.4
+                               L 42 37.4
+                               L 32 12.4 
+                              " stroke="#000000" stroke-width="1" fill="transparent"></path>
+                        <path id="penTip#5" d=" M 32 12.4 
+                                L 27 24.9 
+                                L 37 24.9 
+                                L 32 12.4 
+                            " stroke="transparent" stroke-width="0.5" fill="#0000FF">
+                        </path>
+                        <rect id="colorSection#5" x="22.5" y="37.4" stroke="transparent" stroke-width="0.5"
+                            height="40.00000000000001" width="19" fill="#0000FF"></rect>
+                        <rect id="pen-svg-thickness-section#5" x="22" y="77.4" stroke="#000000" stroke-width="1"
+                            height="30" width="20" fill="transparent" style="pointer-events: auto"></rect>
+                        <rect data-x="24" data-y="92.4" id="pen-svg-thickness-rect#5" stroke="#0000FF"
+                            stroke-width="0.5" style="pointer-events: none" width="16" x="24" y="91.9" height="1"
+                            fill="#0000FF"></rect>
+                        <path id="penMenuExpander#5" d=" M 25 114.4 
+                                L 32 122.4 
+                                L 39 114.4 
+                                L 25 114.4 
+                            " stroke="transparent" stroke-width="0.5" fill="Gray" style="pointer-events: auto" data-enabled="false">
+                        </path>
+                    </g>
+                </svg>
+            </div>
+
+            <div id="div-pen#6" class="toolbox-item">
+                <svg id="svg-pen#6" width="64" height="124">
+                    <g id="penShape#6" style="pointer-events: auto">
+                        <path d=" M 32 12.4 
+                               L 22 37.4 
+                               L 22 77.4
+                               L 42 77.4
+                               L 42 37.4
+                               L 32 12.4 
+                              " stroke="#000000" stroke-width="1" fill="transparent"></path>
+                        <path id="penTip#6" d=" M 32 12.4 
+                            L 27 24.9 
+                            L 37 24.9 
+                            L 32 12.4 
+                        " stroke="transparent" stroke-width="0.5" fill="#4E342E"></path>
+                        <rect id="colorSection#6" x="22.5" y="37.4" stroke="transparent" stroke-width="0.5"
+                            height="40.00000000000001" width="19" fill="#4E342E"></rect>
+                        <rect id="pen-svg-thickness-section#6" x="22" y="77.4" stroke="#000000" stroke-width="1"
+                            height="30" width="20" fill="transparent" style="pointer-events: auto"></rect>
+                        <rect data-x="24" data-y="92.4" id="pen-svg-thickness-rect#6" stroke="#4E342E"
+                            stroke-width="0.5" style="pointer-events: none" width="16" x="24" y="91.9" height="1"
+                            fill="#4E342E"></rect>
+                        <path id="penMenuExpander#6" d=" M 25 114.4 
+                                    L 32 122.4 
+                                    L 39 114.4 
+                                    L 25 114.4 
+                                " stroke="transparent" stroke-width="0.5" fill="Gray" style="pointer-events: auto" data-enabled="false">
+                        </path>
+                    </g>
+                </svg>
+            </div>
+
+            <div id="div-pen#100" class="toolbox-item">
+                <svg id="svg-pen#100" width="64" height="124">
+                    <g id="eraserShape#100" style="pointer-events: auto">
+                        <rect x="22" y="24.8" stroke="transparent" stroke-width="0.5" height="22" width="20"
+                            fill="#FF7043"></rect>
+                        <rect x="22" y="46.8" stroke="transparent" stroke-width="0.5" height="5" width="20"
+                            fill="#CFD8DC"></rect>
+                        <rect x="22" y="51.8" stroke="transparent" stroke-width="0.5" height="5" width="20"
+                            fill="#78909C"></rect>
+                        <rect x="22" y="56.8" stroke="transparent" stroke-width="0.5" height="5" width="20"
+                            fill="#CFD8DC"></rect>
+                        <rect x="22" y="61.8" stroke="transparent" stroke-width="0.5" height="5" width="20"
+                            fill="#78909C"></rect>
+                        <rect x="22" y="66.8" stroke="transparent" stroke-width="0.5" height="40" width="20"
+                            fill="#FFA726"></rect>
+                        <path id="eraserMenuExpander#100" d=" M 25 114.4 
+                            L 32 122.4 
+                            L 39 114.4 
+                            L 25 114.4 
+                            " stroke="transparent" stroke-width="0.5" fill="Gray" style="pointer-events: auto" data-enabled="false">
+                        </path>
+                    </g>
+                </svg>
+            </div>
+
+            <div id="div-compass#1" class="toolbox-item toolbox-item-tools">
+                <svg id="svg-compass#1" width="64" height="124">
+
+                    <line style="pointer-events: none" x1="4.266666666666667" y1="74.4" x2="59.733333333333334"
+                        y2="74.4" stroke="#71B1F5" stroke-width="2"></line>
+                    <g id="compassShape#1" style="pointer-events: auto">
+                        <rect id="compassColorSection#1" style="pointer-events: none" x="28" y="62" stroke="transparent"
+                            stroke-width="0.5" height="24" width="8" fill="#000000"></rect>
+                        <path style="pointer-events: none" d=" M 22.4 43.4 
+                               L 41.6 43.4 
+                               L 54.4 93
+                               L 32 48.4
+                               L 9.6 93
+                               L 22.4 43.4 
+                              " stroke="#71B1F5" stroke-width="1" fill="#71B1F5"></path>
+                        <rect x="29" y="18.6" stroke="#71B1F5" stroke-width="0.5" height="24" width="6" fill="#71B1F5">
+                        </rect>
+                        <path id="compassMenuExpander#1" d=" M 25 114.4 
+                                L 32 122.4 
+                                L 39 114.4 
+                                L 25 114.4 
+                            " stroke="transparent" stroke-width="0.5" fill="Gray" style="pointer-events: auto" data-enabled="false">
+                        </path>
+                    </g>
+                </svg>
+            </div>
+
+            <div id="div-ruler#1" class="toolbox-item toolbox-item-tools">
+                <svg id="svg-ruler#1" width="64" height="124">
+                    <image href="./images/ruler.png" x="0" y="25" height="64px" width="64px"></image>
+                    <text x="0" ,="" y="100" class="svgText">Ruler</text>
+                </svg>
+            </div>
+            <div id="div-ruler#2" class="toolbox-item toolbox-item-tools">
+                <svg id="svg-ruler#2" width="64" height="124">
+                    <image href="./images/protractor.png" x="0" y="25" height="64px" width="64px"></image>
+                    <text x="0" ,="" y="100" class="svgText">Protractor</text>
+                </svg>
+            </div>
+            <div id="div-ruler#3" class="toolbox-item toolbox-item-tools">
+                <svg id="svg-ruler#3" width="64" height="124">
+                    <image href="./images/setSquare.png" x="0" y="25" height="55px" width="55px"></image>
+                    <text x="0" ,="" y="100" class="svgText">Set Square</text>
+                </svg>
+            </div>
+
+            <div id="div-about#1" class="toolbox-item toolbox-item-tools">
+                <svg id="div-about#" width="64" height="124">
+                    <image href="./images/logo.png" x="0" y="25" height="55px" width="55px"></image>
+                    <text x="10" ,="" y="100" class="svgText">About</text>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="drawingLayer_container">
+        <canvas id="whiteboard_canvas#1" width="10000" height="10000" class="drawingLayer"></canvas>
+    </div>
+
+    <script type="module" src="bundle.js"></script>
+</body>
+
 </html>

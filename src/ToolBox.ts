@@ -21,6 +21,7 @@ import { RulersType } from "./BaseRuler";
 import { SaveWhiteboardEvent } from "./SaveFileDrawingEvents";
 import { OpenSavedWhiteboardEvent } from "./OpenSavedWhiteboardEvent";
 import { NewWhiteboardEvent } from "./NewFileDrawingEvents";
+import { AboutEvent } from "./AboutEvent";
 
 
 export class ToolBox{
@@ -43,12 +44,12 @@ export class ToolBox{
         this.initializePen('svg-pen#4', '#FFFF00', false); 
         this.initializePen('svg-pen#5', '#0000FF', false);
         this.initializePen('svg-pen#6', '#4E342E', false);
-        // this.initializePen('svg-pen#7', '#F57C00', false); 
-        // this.initializePen('svg-pen#8', '#76FF03', false); 
-        // this.initializePen('svg-pen#9', '#AA00FF', false);
-        // this.initializePen('svg-pen#10', '#D81B60', false); 
-        // this.initializePen('svg-pen#11', '#00695C', false);
-        // this.initializePen('svg-pen#12', '#4E342E', false);
+        // // this.initializePen('svg-pen#7', '#F57C00', false); 
+        // // this.initializePen('svg-pen#8', '#76FF03', false); 
+        // // this.initializePen('svg-pen#9', '#AA00FF', false);
+        // // this.initializePen('svg-pen#10', '#D81B60', false); 
+        // // this.initializePen('svg-pen#11', '#00695C', false);
+        // // this.initializePen('svg-pen#12', '#4E342E', false);
 
         this.initializeEraser('svg-pen#100');
 
@@ -57,6 +58,8 @@ export class ToolBox{
         this.initializeRuler('svg-ruler#3');
 
         this.initializeCompass('svg-compass#1');
+
+        this.initializeAbout();
     }
 
     private initializeClear(id : string){
@@ -77,7 +80,7 @@ export class ToolBox{
     private initializeNewFile(id : string){
         let newFileBtn = new NewFileToolboxItem(id);        
         this._toolboxItems.set(id, newFileBtn);
-        newFileBtn.drawNewFileSVG();
+        //newFileBtn.drawNewFileSVG();
    
         newFileBtn.divElement?.addEventListener(`click`, (event) =>{
             let newWhiteboardEvent = new NewWhiteboardEvent(id, ToolBoxItemType.NewFile );
@@ -89,7 +92,7 @@ export class ToolBox{
     private initializeOpenFile(id : string){
         let openFileBtn = new OpenFileToolboxItem(id);        
         this._toolboxItems.set(id, openFileBtn);
-        openFileBtn.drawOpenFileSVG();
+        //openFileBtn.drawOpenFileSVG();
    
         openFileBtn.divElement?.addEventListener(`click`, (event) =>{
             let openExistingWhiteboardEvent = new OpenSavedWhiteboardEvent(id, ToolBoxItemType.OpenFile );
@@ -101,7 +104,7 @@ export class ToolBox{
     private initializeSaveFile(id : string){
         let saveFileBtn = new SaveFileToolboxItem(id);        
         this._toolboxItems.set(id, saveFileBtn);
-        saveFileBtn.drawSaveFileSVG();
+        //saveFileBtn.drawSaveFileSVG();
 
         saveFileBtn.divElement?.addEventListener(`click`, (event) =>{
             let saveWhiteboardEvent = new SaveWhiteboardEvent(id, ToolBoxItemType.Save );
@@ -167,7 +170,7 @@ export class ToolBox{
 
         let eraser = new EraserToolBoxItem(id, settings);        
         this._toolboxItems.set(id, eraser);
-        eraser.drawEraserSVG();
+        //eraser.drawEraserSVG();
         let penValue = ToolBoxItemType.Pen;
         let eraserValue = ToolBoxItemType.Eraser;
         let pointerValue = ToolBoxItemType.Pointer;
@@ -201,6 +204,13 @@ export class ToolBox{
        
     }
 
+    private initializeAbout(){
+        let element = document.getElementById("div-about#1");
+        element?.addEventListener('click', () => {
+            let aboutEvent = new AboutEvent();
+            EventAggregator.publish(aboutEvent);
+        });
+    }
     private initializeRuler(id : string){
         let rulerType = ToolBoxItemType.Ruler;
 
@@ -251,7 +261,7 @@ export class ToolBox{
         pen.isSelected = isSelected;
        
         this._toolboxItems.set(id, pen);
-        pen.drawPenSVG();
+        //pen.drawPenSVG();
         let penValue = ToolBoxItemType.Pen;
         let eraserValue = ToolBoxItemType.Eraser;
         let pointerValue = ToolBoxItemType.Pointer;
@@ -297,7 +307,7 @@ export class ToolBox{
         let compass = new CompassToolBoxItem(id, settings);
         compass.isSelected = false;
         this._toolboxItems.set(id, compass);
-        compass.drawCompassSVG();
+        //compass.drawCompassSVG();
         compass.divElement?.addEventListener(`click`, (event) =>{
             
             let target = event.target as HTMLDivElement;

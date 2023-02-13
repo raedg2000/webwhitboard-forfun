@@ -15,7 +15,7 @@ export class SVGLoading{
 
         let loadingImage = document.createElementNS("http://www.w3.org/2000/svg", "image");
        
-        loadingImage.setAttribute('href', './images/loading.gif');
+        loadingImage.setAttribute('href', './images/loading.png');
         loadingImage.setAttribute('width', `480`);
         loadingImage.setAttribute('height', `400`);
         loadingImage.setAttribute('x',  '0' );
