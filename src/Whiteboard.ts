@@ -190,20 +190,23 @@ export class Whiteboard implements IEventHandler{
 
     }
 
-    private mapMousePositionToCanvas(x : number, y : number) : Point{
+    private mapMousePositionToCanvas(x : number, y : number, ignore: boolean = false) : Point{
 
-        return   new Point(x,y);
-        // if (this._drawingLayer?.canvas) {
-        //     let canvas = this._drawingLayer.canvas;
-        //     var bbox = canvas.getBoundingClientRect();
-    
-        //     return  new Point(x - bbox.left * (canvas.width / bbox.width),
-        //                   y - bbox.top * (canvas.height / bbox.height));
+        if (ignore){
+            return   new Point(x,y);
+        }
+        else
+        {   
+            if (this._drawingLayer?.canvas) {
+                let canvas = this._drawingLayer.canvas;
+                var bbox = canvas.getBoundingClientRect();
+        
+                return  new Point(x - bbox.left * (canvas.width / bbox.width),
+                            y - bbox.top * (canvas.height / bbox.height));
 
-        // }
-        // else {
-        //     return   new Point(-1,-1);
-        // }
+            }
+        }
+        return   new Point(-1,-1);
     }
 
     private handlePenSelectedEvent(eventData: PenSelectedEvent) : void{

@@ -323,7 +323,7 @@ export class Ruler extends BaseRuler implements IDispose{
     
         if (this._angleOfRotation === 0) {
             if (penPosition.x >= this._topLeftPostion.x && penPosition.x <= this._topLeftPostion.x + this._width)
-            distanceFromTopSide = penPosition.y - this._topLeftPostion.y ;
+            distanceFromTopSide = penPosition.y - this._topLeftPostion.y;
             if (distanceFromTopSide > 0){
                 distanceFromTopSide = Number.MAX_VALUE;
             }

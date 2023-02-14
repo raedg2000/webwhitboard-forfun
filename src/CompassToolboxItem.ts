@@ -23,6 +23,8 @@ export class CompassToolBoxItem extends ToolBoxItem{
         this._width = Number(this._svgElement?.clientWidth);
         this._height = Number(this._svgElement?.clientHeight);
 
+        this.addCompassMenuExpanderEvent();
+        
         EventAggregator.subscribe('CompassSettingsChangedEvent', this);
     }
 
@@ -33,6 +35,28 @@ export class CompassToolBoxItem extends ToolBoxItem{
     set settings(value : BaseCompassSettings) {
         this._settings = value;
     }
+
+    private addCompassMenuExpanderEvent(){
+        let element : any= document.getElementById(`compassMenuExpander#${this.id.split('#')[1]}`);
+
+        if (element){
+            let compassMenuExpander = element as SVGPathElement;
+            compassMenuExpander.addEventListener('mousedown', (event) =>{
+                event.stopPropagation();
+                event.preventDefault();
+                let tempElement = event.currentTarget as SVGMPathElement;
+                if (tempElement && tempElement.dataset.enabled === 'true' && this._settings && this.isSelected){
+                    if (this._settings.thickness === 0){
+                        this._settings.thickness = 1;
+                    }
+                
+                    let compassMenuSettingsOpenEvent = new CompassMenuSettingsOpenEvent(this.id, this._settings, this.divElement?.getBoundingClientRect());
+                    EventAggregator.publish(compassMenuSettingsOpenEvent);
+                    //
+                }
+            });
+       }
+}
 
     drawCompassSVG(){
         if (this._svgElement){

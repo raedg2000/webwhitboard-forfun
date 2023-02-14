@@ -23,7 +23,9 @@ export class PenToolBoxItem extends ToolBoxItem implements IEventHandler {
         this._width = Number(this._svgElement?.clientWidth);
         this._height = Number(this._svgElement?.clientHeight);
 
+        this.addPenMenuExpanderEvent()
         EventAggregator.subscribe('PenSettingsChangedEvent', this);
+
     }
 
     get settings() : BasePenSettings{
@@ -34,6 +36,28 @@ export class PenToolBoxItem extends ToolBoxItem implements IEventHandler {
         this._settings = value;
     }
 
+    private addPenMenuExpanderEvent(){
+        let element : any = document.getElementById(`penMenuExpander#${this.id.split('#')[1]}`);
+       
+        if (element){
+            let penMenuExpander = element as SVGPathElement;
+            penMenuExpander.addEventListener('mouseup', (event) =>{
+                event.stopPropagation();
+                let tempElement = event.currentTarget as SVGMPathElement;
+                if (tempElement && tempElement.dataset.enabled === 'true' && this._settings && this.isSelected){
+                    if (this._settings.thickness === 0){
+                        this._settings.thickness = 1;
+                    }
+                
+                    let penMenuSettingsOpenEvent = new PenMenuSettingsOpenEvent(this.id, this._settings, this.divElement?.getBoundingClientRect());
+                    EventAggregator.publish(penMenuSettingsOpenEvent);
+                    //
+                }
+            });
+        }
+    }
+
+    
     private findthicknessRect(id :string) : SVGRectElement | undefined{
 
            let thicknessRectId = `pen-svg-thickness-rect#${id.split('#')[1]}`;
