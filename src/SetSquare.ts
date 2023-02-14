@@ -101,8 +101,8 @@ export class SetSquare extends BaseRuler implements IDispose{
 
             if ((pointerEvent.pointerType !== 'mouse') || (pointerEvent.pointerType === 'mouse' && this._startDragging && pointerEvent.buttons === 1)){
                 this._outerTriangle.style.cursor = 'grab';
-                let x =   Number.parseFloat(this._svgRulerInstance.style.left)+ + pointerEvent.movementX;
-                let y =   Number.parseFloat(this._svgRulerInstance.style.top)+ + pointerEvent.movementY;
+                let x =   Number.parseFloat(this._svgRulerInstance.style.left) +  pointerEvent.movementX;
+                let y =   Number.parseFloat(this._svgRulerInstance.style.top) + pointerEvent.movementY;
 
                 this._svgRulerInstance.style.left = x.toString();
                 this._svgRulerInstance.style.top = y.toString();
@@ -577,7 +577,7 @@ export class SetSquare extends BaseRuler implements IDispose{
         let vc_ty = this._pointC.y - center.y ;
     
         let p_tx = mousePosition.x - center.x - this._topLeftPostion.x;
-        let p_ty = mousePosition.y - center.y - this._topLeftPostion.x;
+        let p_ty = mousePosition.y - center.y - this._topLeftPostion.y;
     
         let angle = Math.PI * this._angleOfRotation / 180;
         let va_x = Math.cos(angle) * va_tx - Math.sin(angle) * va_ty;

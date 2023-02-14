@@ -16,7 +16,7 @@ export class DrawingLayer implements IEventHandler{
     constructor(){
         this.getHtmlCanvasElement();
         this.initializeCanvas();
-        EventAggregator.subscribe('ClearCanvasDrawingEvent', this);
+        //EventAggregator.subscribe('ClearCanvasDrawingEvent', this);
     }
 
     get canvas():HTMLCanvasElement | undefined{

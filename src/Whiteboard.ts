@@ -223,16 +223,29 @@ export class Whiteboard implements IEventHandler{
 
  
     private handleHandleClearCanvasEvent(eventData: ClearCanvasDrawingEvent) : void{
-      
-       this._data = new Array<Line | Arcs |ErasedLine>();
-       this._dataChanged = true;
-       this._activeRulers.forEach((ruler)=> ruler.dispose());
-       this._activeRulers.clear();
-       
-       this._activeCompass?.dispose();
-       this._activeCompass = null;
-
-       this._toolbox.resetSelection();
+        
+        if (this._data.length > 0){
+            let clearDialog = document.getElementById('clearDialog') as HTMLDialogElement;
+            if (clearDialog){
+                clearDialog.addEventListener('close', () => {
+                    if (clearDialog.returnValue === 'Yes'){
+                        this._data = new Array<Line | Arcs |ErasedLine>();
+                        this._dataChanged = true;
+                        this._activeRulers.forEach((ruler)=> ruler.dispose());
+                        this._activeRulers.clear();
+                        
+                        this._activeCompass?.dispose();
+                        this._activeCompass = null;
+            
+                        this._toolbox.resetSelection();
+    
+                        this._drawingLayer?.clear();
+                    }
+                });
+                clearDialog.showModal();
+            }
+           
+        }
     }
 
     private handleCompassSelectedEvent(eventData : AddCompassEvent){

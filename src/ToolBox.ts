@@ -65,7 +65,7 @@ export class ToolBox{
     private initializeClear(id : string){
         let clearBtn = new ClearCanvasToolboxItem(id);        
         this._toolboxItems.set(id, clearBtn);
-        clearBtn.drawClearCanvasSVG();
+        //clearBtn.drawClearCanvasSVG();
         let clear_toolboxItem = document.getElementById(id);
         if (clear_toolboxItem){
             clear_toolboxItem.addEventListener(`click`, ()=>{
