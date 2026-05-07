@@ -4,7 +4,7 @@ import { BasePenSettings } from "./BasePenSettings";
 import { ToolBoxItemType } from "./ToolBoxItemType";
 import { ToolBoxItem } from "./ToolBoxItem";
 import { PenToolBoxItem} from "./PenToolboxItem";
-import { CompassToolBoxItem } from "./CompassToolBoxItem";
+import { CompassToolBoxItem } from "./CompassToolboxItem";
 import { EraserToolBoxItem } from "./EraserToolBoxItem";
 import { SaveFileToolboxItem } from "./SaveFileToolboxItem";
 import { OpenFileToolboxItem } from "./OpenFileToolboxItem";

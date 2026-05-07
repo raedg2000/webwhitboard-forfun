@@ -346,7 +346,7 @@ export class Whiteboard implements IEventHandler{
         }
         else{
             try{
-                const pickerOpts = {
+                const pickerOpts: SaveFilePickerOptions = {
                     types: [
                         {
                         description: 'whiteboard',
@@ -356,10 +356,9 @@ export class Whiteboard implements IEventHandler{
                         },
                     ],
                     excludeAcceptAllOption: true,
-                    multiple: false,
                 };
                 // create a new handle
-                this._fileSystemHandler =  await window.showSaveFilePicker(pickerOpts);
+                this._fileSystemHandler = await showSaveFilePicker(pickerOpts);
                 await this.writeContentToDisk();
             }
             finally{
@@ -372,7 +371,7 @@ export class Whiteboard implements IEventHandler{
 
     private async handleOpenExistingWhiteboardEvent (){
         try{
-            const pickerOpts = {
+            const pickerOpts: OpenFilePickerOptions & { multiple: false } = {
                 types: [
                     {
                     description: 'whiteboard',
@@ -385,7 +384,8 @@ export class Whiteboard implements IEventHandler{
                 multiple: false,
             };
             // create a new handle
-            this._fileSystemHandler =  (await window.showOpenFilePicker(pickerOpts))[0];
+            const [fileHandle] = await showOpenFilePicker(pickerOpts);
+            this._fileSystemHandler = fileHandle;
             let file =  await this._fileSystemHandler.getFile();
             let json = await file.text();
             return [file.name, json];
