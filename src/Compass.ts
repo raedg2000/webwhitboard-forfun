@@ -343,6 +343,7 @@ export class Compass implements IEventHandler{
                 this._compassRadius.style.cursor = 'grab';
                 event.preventDefault();
                 event.stopPropagation();
+                this._compassRadius.setPointerCapture(event.pointerId);
                 this.lineDragging = true;
             }
 
@@ -406,12 +407,14 @@ export class Compass implements IEventHandler{
         });
         this._compassRadius.addEventListener('pointerup',  (event) => {
             let pointerEvent = event as PointerEvent;
-            document.body.style.touchAction ='auto';
             pointerEvent.stopPropagation();
             pointerEvent.preventDefault();
 
             if (this.lineDragging){
                 this._compassRadius.style.cursor = 'pointer';
+                if (this._compassRadius.hasPointerCapture(pointerEvent.pointerId)){
+                    this._compassRadius.releasePointerCapture(pointerEvent.pointerId);
+                }
             }
             this.lineDragging = false;
         });
@@ -443,6 +446,7 @@ export class Compass implements IEventHandler{
                 this._compassRadiusTextRect.style.cursor = 'grab';
                 event.preventDefault();
                 event.stopPropagation();
+                this._compassRadiusTextRect.setPointerCapture(event.pointerId);
                 this.indicatorDragging = true;
             }
             else if (this._locked){
@@ -515,12 +519,14 @@ export class Compass implements IEventHandler{
 
         this._compassRadiusTextRect.addEventListener('pointerup',  (event) => {
             let pointerEvent = event as PointerEvent;
-            document.body.style.touchAction ='auto';
             pointerEvent.stopPropagation();
             pointerEvent.preventDefault();
 
             if (this.indicatorDragging){
                 this._compassRadiusTextRect.style.cursor = 'pointer';
+                if (this._compassRadiusTextRect.hasPointerCapture(pointerEvent.pointerId)){
+                    this._compassRadiusTextRect.releasePointerCapture(pointerEvent.pointerId);
+                }
             }
             this.indicatorDragging = false;
         });
@@ -639,7 +645,6 @@ export class Compass implements IEventHandler{
 
         this._compassPen.addEventListener('pointerup',  (event) => {
             let pointerEvent = event as PointerEvent;
-            document.body.style.touchAction ='auto';
             pointerEvent.stopPropagation();
             pointerEvent.preventDefault();
             
@@ -690,6 +695,7 @@ export class Compass implements IEventHandler{
                 this._compassCenter.style.cursor = 'grab';
                 event.preventDefault();
                 event.stopPropagation();
+                this._compassCenter.setPointerCapture(event.pointerId);
                 this.centerDragging = true;
             }
             else if (this._locked){
@@ -766,7 +772,6 @@ export class Compass implements IEventHandler{
         });
 
         this._compassCenter.addEventListener('pointerup',  (event) => {
-            document.body.style.touchAction ='auto';
             let pointerEvent = event as PointerEvent;
             
             pointerEvent.stopPropagation();
@@ -775,6 +780,9 @@ export class Compass implements IEventHandler{
             if (this.centerDragging){
                 this.updateAngle();
                 this._compassCenter.style.cursor = 'pointer';
+                if (this._compassCenter.hasPointerCapture(pointerEvent.pointerId)){
+                    this._compassCenter.releasePointerCapture(pointerEvent.pointerId);
+                }
             }
             this.centerDragging = false;
         });

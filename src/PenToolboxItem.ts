@@ -41,7 +41,7 @@ export class PenToolBoxItem extends ToolBoxItem implements IEventHandler {
        
         if (element){
             let penMenuExpander = element as SVGPathElement;
-            penMenuExpander.addEventListener('mouseup', (event) =>{
+            penMenuExpander.addEventListener('pointerup', (event) =>{
                 event.stopPropagation();
                 let tempElement = event.currentTarget as SVGMPathElement;
                 if (tempElement && tempElement.dataset.enabled === 'true' && this._settings && this.isSelected){
@@ -205,7 +205,7 @@ export class PenToolBoxItem extends ToolBoxItem implements IEventHandler {
             penMenuExpander.setAttribute('fill', `Gray`);
             penMenuExpander.setAttribute('style', `pointer-events: auto`);
             penMenuExpander.dataset.enabled = 'false';
-            penMenuExpander.addEventListener('mouseup', (event) =>{
+            penMenuExpander.addEventListener('pointerup', (event) =>{
                 event.stopPropagation();
                 let tempElement = event.currentTarget as SVGMPathElement;
                 if (tempElement && tempElement.dataset.enabled === 'true' && this._settings && this.isSelected){

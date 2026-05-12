@@ -1,8 +1,17 @@
+html, body {
+    touch-action: none;
+    overscroll-behavior: none;
+}
+
 body {
     overflow: hidden;
     margin: 0px;
     overflow: scroll; /* Scrollbar are always visible */
     overflow: auto;   /* Scrollbar is displayed as it's needed */
+}
+
+canvas, svg {
+    touch-action: none;
 }
 
 * {
@@ -11,6 +20,7 @@ body {
     -moz-user-select: -moz-none;
     -o-user-select: none;
     user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .root {

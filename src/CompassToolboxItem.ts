@@ -41,7 +41,7 @@ export class CompassToolBoxItem extends ToolBoxItem{
 
         if (element){
             let compassMenuExpander = element as SVGPathElement;
-            compassMenuExpander.addEventListener('mousedown', (event) =>{
+            compassMenuExpander.addEventListener('pointerdown', (event) =>{
                 event.stopPropagation();
                 event.preventDefault();
                 let tempElement = event.currentTarget as SVGMPathElement;
@@ -152,7 +152,7 @@ export class CompassToolBoxItem extends ToolBoxItem{
             compassMenuExpander.setAttribute('fill', `Gray`);
             compassMenuExpander.setAttribute('style', `pointer-events: auto`);
             compassMenuExpander.dataset.enabled = 'false';
-            compassMenuExpander.addEventListener('mousedown', (event) =>{
+            compassMenuExpander.addEventListener('pointerdown', (event) =>{
                 event.stopPropagation();
                 event.preventDefault();
                 let tempElement = event.currentTarget as SVGMPathElement;

@@ -1,3 +1,4 @@
+import "./iOSTouchPatch";
 import { EventAggregator } from "./EventAggregator";
 import { Whiteboard } from "./Whiteboard";
 

@@ -38,7 +38,7 @@ export class EraserToolBoxItem extends ToolBoxItem implements IEventHandler{
         let element: any = document.getElementById( `eraserMenuExpander#${this.id.split('#')[1]}`);
         if (element){
             let eraserMenuExpander = element as SVGPathElement;
-            eraserMenuExpander.addEventListener('mouseup', (event) =>{
+            eraserMenuExpander.addEventListener('pointerup', (event) =>{
                 event.stopPropagation();
                 let tempElement = event.currentTarget as SVGMPathElement;
                 if (tempElement && tempElement.dataset.enabled === 'true' && this._settings && this.isSelected){
@@ -143,7 +143,7 @@ export class EraserToolBoxItem extends ToolBoxItem implements IEventHandler{
             eraserMenuExpander.setAttribute('fill', `Gray`);
             eraserMenuExpander.setAttribute('style', `pointer-events: auto`);
             eraserMenuExpander.dataset.enabled = 'false';
-            eraserMenuExpander.addEventListener('mouseup', (event) =>{
+            eraserMenuExpander.addEventListener('pointerup', (event) =>{
                 event.stopPropagation();
                 let tempElement = event.currentTarget as SVGMPathElement;
                 if (tempElement && tempElement.dataset.enabled === 'true' && this._settings && this.isSelected){
