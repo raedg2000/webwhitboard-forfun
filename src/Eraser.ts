@@ -117,25 +117,21 @@ export class Eraser implements IMouseMoveEvent, IMouseLeftButtonDownEvent, IMous
     }
 
     OnMouseUp(data: Point): void {
-       let context = this._drawingLayer?.canvas?.getContext('2d');
-       if (context) {
-            if (this._previousPosition !== null) {
-                this.erase(this._previousPosition);
-            }
-          
-       }
+        let context = this._drawingLayer?.canvas?.getContext('2d');
+        if (context && this._previousPosition !== null) {
+            this.erase(this._previousPosition);
+        }
 
-       this._previousPosition = null;
-       this._lastPosition = null;
-       this._erasingStarted = false; 
+        this._previousPosition = null;
+        this._lastPosition = null;
+        this._erasingStarted = false;
 
-       let erasedLinesDrawingCompletedEvent = new ErasedLinesDrawingCompletedEvent(this._erasedLine);
-       EventAggregator.publish(erasedLinesDrawingCompletedEvent);
+        let erasedLinesDrawingCompletedEvent = new ErasedLinesDrawingCompletedEvent(this._erasedLine);
+        EventAggregator.publish(erasedLinesDrawingCompletedEvent);
 
-       this._previousPosition = null;
-       this._lastPosition = null;
-       this._erasingStarted = false; 
-       this._erasedLine = new ErasedLine();
+        this._erasedLine = new ErasedLine();
+        this._erasedLine.eraserType = this._settings.eraserShape;
+        this._erasedLine.width = this._settings.width;
     }
 
     erase (position : Point){

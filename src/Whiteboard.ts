@@ -201,8 +201,8 @@ export class Whiteboard implements IEventHandler{
                 let canvas = this._drawingLayer.canvas;
                 var bbox = canvas.getBoundingClientRect();
         
-                return  new Point(x - bbox.left * (canvas.width / bbox.width),
-                            y - bbox.top * (canvas.height / bbox.height));
+                return  new Point((x - bbox.left) * (canvas.width / bbox.width),
+                            (y - bbox.top) * (canvas.height / bbox.height));
 
             }
         }
@@ -241,7 +241,7 @@ export class Whiteboard implements IEventHandler{
     
                         this._drawingLayer?.clear();
                     }
-                });
+                }, { once: true });
                 clearDialog.showModal();
             }
            
@@ -250,7 +250,8 @@ export class Whiteboard implements IEventHandler{
 
     private handleCompassSelectedEvent(eventData : AddCompassEvent){
         if (this._activeCompass !== null){
-            //dispose
+            this._activeCompass.dispose();
+            this._activeCompass = null;
         }
         if (this._drawingLayer !== null){
             this._activeCompass = new Compass(eventData.id, eventData.settings, this._drawingLayer);
@@ -320,17 +321,11 @@ export class Whiteboard implements IEventHandler{
 
     private async writeContentToDisk(){
         if (this._fileSystemHandler){
-            try{
-
-                const writable = await this._fileSystemHandler.createWritable();
-                let content = JSON.stringify(this._data);
-                await writable.write(content);
-                await writable.close();
-
-            }
-            catch(err){
-
-            }
+            const writable = await this._fileSystemHandler.createWritable();
+            let content = JSON.stringify(this._data);
+            await writable.write(content);
+            await writable.close();
+            this._dataChanged = false;
         }
     }
 
@@ -411,29 +406,25 @@ export class Whiteboard implements IEventHandler{
     }
 
 
-    private loadFile(){
+    private async loadFile(){
+        let svgloading: SVGLoading | null = null;
         try{
-            Promise.all([this.handleOpenExistingWhiteboardEvent()]).then((values)=>{
-                let svgloading = new SVGLoading(); 
-                window.setTimeout(()=>{
-                    if (this._drawingLayer){
-                            if (values.length > 0){
-                                let tuple = values[0];
-                                if (tuple){
-                                    this.reinitialize();
-                                    this._data = JSON.parse(tuple[1]);
-                                    Renderer.render(this._drawingLayer, this._data);
-                                    Whiteboard.updateDocumentTitle(tuple[0]);
-                                }
-                            }
-                        }
-                        svgloading.dispose();
-                    },1000);
-            
-            });
+            const tuple = await this.handleOpenExistingWhiteboardEvent();
+            svgloading = new SVGLoading(); 
+            await new Promise<void>((resolve) => window.setTimeout(resolve, 1000));
+            if (this._drawingLayer && tuple){
+                this.reinitialize(false);
+                this._data = JSON.parse(tuple[1]);
+                await Renderer.render(this._drawingLayer, this._data);
+                this._dataChanged = false;
+                Whiteboard.updateDocumentTitle(tuple[0]);
+            }
         }
         catch(err){
             console.log(err);
+        }
+        finally{
+            svgloading?.dispose();
         }
     }
 
@@ -534,7 +525,10 @@ export class Whiteboard implements IEventHandler{
                                         this.reinitialize();
                                     });
                                 }
-                            });
+                                else if (dialog.returnValue === 'No'){
+                                    this.reinitialize();
+                                }
+                            }, { once: true });
                             dialog.showModal();
                         }
                     }
@@ -542,7 +536,6 @@ export class Whiteboard implements IEventHandler{
                         this.reinitialize() ;
                     }
                 }
-                break;
                 break;
 
             case 'SaveWhiteboardEvent':
@@ -555,17 +548,19 @@ export class Whiteboard implements IEventHandler{
                     if (this._data.length > 0 && this._dataChanged){
                         let dialog = document.getElementById("saveFileDialog") as HTMLDialogElement;
                         if (dialog){
-                            dialog.addEventListener('close', () => {
+                            dialog.addEventListener('close', async () => {
                                 if (dialog.returnValue === 'Yes'){
-                                    this.handleSaveWhiteboardEvent();
+                                    await this.handleSaveWhiteboardEvent();
+                                    await this.loadFile();
+                                } else if (dialog.returnValue === 'No') {
+                                    await this.loadFile();
                                 }
-                                this.loadFile();   
-                            });
+                            }, { once: true });
                             dialog.showModal();
                         }
                     }
                     else{
-                        this.loadFile(); 
+                        void this.loadFile(); 
                     }
                 }
                 break;
@@ -598,11 +593,15 @@ export class Whiteboard implements IEventHandler{
         }
     }
 
-    reinitialize(){
-        Whiteboard.updateDocumentTitle(`untilted - ${Whiteboard.getNewCounter()}`);
+    reinitialize(resetFileHandle: boolean = true){
+        Whiteboard.updateDocumentTitle(`untitled - ${Whiteboard.getNewCounter()}`);
 
         this._data = new Array<Line | Arcs |ErasedLine>();
         this._dataChanged = false;
+        if (resetFileHandle){
+            this._fileSystemHandler = undefined;
+            this._file = undefined;
+        }
 
         this._activePen?.dispose();
         this._activePen = null;

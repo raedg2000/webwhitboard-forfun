@@ -172,7 +172,7 @@ export class Ruler extends BaseRuler implements IDispose{
             
             this._svgRulerInstance.style.transformBox = 'fill-box';
             this._svgRulerInstance.style.transformOrigin ='center';
-            this._svgRulerInstance.style.transform = `rotate(${this._angleOfRotation}deg`;
+            this._svgRulerInstance.style.transform = `rotate(${this._angleOfRotation}deg)`;
 
             if (this._svgAngleIndicator){
                 let metrics = this.measureText((-1*this._angleOfRotation).toString() + '°', this._defaultFontSize)
@@ -181,7 +181,7 @@ export class Ruler extends BaseRuler implements IDispose{
                 }
                 this._svgAngleIndicator.style.transformBox = 'view-box';
                 this._svgAngleIndicator.style.transformOrigin ='center';
-                this._svgAngleIndicator.style.transform = `rotate(${-1*this._angleOfRotation}deg`;
+                this._svgAngleIndicator.style.transform = `rotate(${-1*this._angleOfRotation}deg)`;
                 this._svgAngleIndicator.childNodes[0].nodeValue = (-1*this._angleOfRotation).toString() + '°';
            
             }
@@ -194,7 +194,7 @@ export class Ruler extends BaseRuler implements IDispose{
 
         this._svgRulerInstance.style.transformBox = 'fill-box';
         this._svgRulerInstance.style.transformOrigin ='center';
-        this._svgRulerInstance.style.transform = `rotate(${this._angleOfRotation}deg`;
+        this._svgRulerInstance.style.transform = `rotate(${this._angleOfRotation}deg)`;
 
         if (this._svgAngleIndicator){
             let metrics = this.measureText((-1*this._angleOfRotation).toString() + '°', this._defaultFontSize)
@@ -203,7 +203,7 @@ export class Ruler extends BaseRuler implements IDispose{
             }
             this._svgAngleIndicator.style.transformBox = 'view-box';
             this._svgAngleIndicator.style.transformOrigin ='center';
-            this._svgAngleIndicator.style.transform = `rotate(${-1*this._angleOfRotation}deg`;
+            this._svgAngleIndicator.style.transform = `rotate(${-1*this._angleOfRotation}deg)`;
             this._svgAngleIndicator.childNodes[0].nodeValue = (-1*this._angleOfRotation).toString() + '°';
        
         }
@@ -276,7 +276,7 @@ export class Ruler extends BaseRuler implements IDispose{
     
             let angleCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     
-            pathString = ` M ${x} ${this._topLeftPostion.y + this._height} L ${x} ${this._height - markHeight}`;
+            pathString = ` M ${x} ${this._height} L ${x} ${this._height - markHeight}`;
     
             let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
             path.setAttribute('d', pathString);

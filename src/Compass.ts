@@ -27,8 +27,6 @@ export class Compass implements IEventHandler{
     private _drawingLayer : DrawingLayer | null;
     private _svgCompassInstance : SVGElement;
 
-    private center = Point;
-
     private _centerdiameter: number = 50;
     private _strokeLineColor: string = 'blue';
     private _strokLineWidth: number = 5;
@@ -129,8 +127,8 @@ export class Compass implements IEventHandler{
             let canvas = this._drawingLayer.canvas;
             var bbox = canvas.getBoundingClientRect();
     
-            return  new Point(x - bbox.left * (canvas.width / bbox.width),
-                          y - bbox.top * (canvas.height / bbox.height));
+            return  new Point((x - bbox.left) * (canvas.width / bbox.width),
+                          (y - bbox.top) * (canvas.height / bbox.height));
 
         }
         else {
@@ -1182,6 +1180,7 @@ export class Compass implements IEventHandler{
    
     dispose(){
            
+        EventAggregator.unSubscribe('CompassSettingsChangedEvent', this);
         document.body.removeChild(this._svgCompassInstance);
     }
 

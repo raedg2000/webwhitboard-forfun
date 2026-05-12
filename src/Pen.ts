@@ -122,7 +122,6 @@ export class Pen implements IMouseMoveEvent, IMouseLeftButtonDownEvent, IMouseLe
 
     draw() {
         if (this.drawingStarted){
-            let capturingObject = null;
 
             let context = this._drawingLayer?.canvas?.getContext('2d');
             if (context && this._startPosition !== null && this._lastPosition !== null) {
@@ -142,7 +141,6 @@ export class Pen implements IMouseMoveEvent, IMouseLeftButtonDownEvent, IMouseLe
 
     drawArc(){
         if (this.drawingStarted){
-            let capturingObject = null;
 
             let context = this._drawingLayer?.canvas?.getContext('2d');
             if (context && this._startPosition !== null && this._lastPosition !== null && this._capturedRulerInfo !== null) {
@@ -180,7 +178,7 @@ export class Pen implements IMouseMoveEvent, IMouseLeftButtonDownEvent, IMouseLe
         this._lastPosition = null;
         this._drawingStarted = false;
         this._capturedRulerInfo = null;
-        EventAggregator.unSubscribe('RulerCaptureReleased', this);
+        EventAggregator.unSubscribe('RulerReleasedCapture', this);
     }
 
     handle(eventData: RulerReleasedCapture): void {

@@ -1,5 +1,4 @@
 import { BaseEraserSettings, EraserShapeType } from "./BaseEraserSettings";
-import { CompassSettingsChangedEvent } from "./CompassDrawingEvents";
 import { EraserSettingsChangedEvent } from "./EraserDrawingEvents";
 import { EventAggregator } from "./EventAggregator";
 

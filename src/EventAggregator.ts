@@ -33,7 +33,7 @@ export abstract class EventAggregator{
             for (let entry of eventSubscribers){
                 if (entry === subscriber){
                     let index = eventSubscribers.indexOf(entry);
-                    delete eventSubscribers[index];
+                    eventSubscribers.splice(index, 1);
                     break;
                 }
             }

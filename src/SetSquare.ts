@@ -164,7 +164,7 @@ export class SetSquare extends BaseRuler implements IDispose{
             
             this._svgRulerInstance.style.transformBox = 'fill-box';
             this._svgRulerInstance.style.transformOrigin ='center';
-            this._svgRulerInstance.style.transform = `rotate(${this._angleOfRotation}deg`;
+            this._svgRulerInstance.style.transform = `rotate(${this._angleOfRotation}deg)`;
            
             if (this._svgAngleIndicator){
                 let metrics = this.measureText((-1*this._angleOfRotation).toString() + '°', this._defaultFontSize)
@@ -173,7 +173,7 @@ export class SetSquare extends BaseRuler implements IDispose{
                 }
                 this._svgAngleIndicator.style.transformBox = 'fill-box';
                 this._svgAngleIndicator.style.transformOrigin ='center';
-                this._svgAngleIndicator.style.transform = `rotate(${-1*this._angleOfRotation}deg`;
+                this._svgAngleIndicator.style.transform = `rotate(${-1*this._angleOfRotation}deg)`;
                 this._svgAngleIndicator.childNodes[0].nodeValue = (-1*this._angleOfRotation).toString() + '°';
            
             }
@@ -252,7 +252,7 @@ export class SetSquare extends BaseRuler implements IDispose{
 
         this._svgRulerInstance.style.transformBox = 'fill-box';
         this._svgRulerInstance.style.transformOrigin ='center';
-        this._svgRulerInstance.style.transform = `rotate(${this._angleOfRotation}deg`;
+        this._svgRulerInstance.style.transform = `rotate(${this._angleOfRotation}deg)`;
 
         if (this._svgAngleIndicator){
             let metrics = this.measureText((-1*this._angleOfRotation).toString() + '°', this._defaultFontSize)
@@ -261,7 +261,7 @@ export class SetSquare extends BaseRuler implements IDispose{
             }
             this._svgAngleIndicator.style.transformBox = 'fill-box';
             this._svgAngleIndicator.style.transformOrigin ='center';
-            this._svgAngleIndicator.style.transform = `rotate(${-1*this._angleOfRotation}deg`;
+            this._svgAngleIndicator.style.transform = `rotate(${-1*this._angleOfRotation}deg)`;
             this._svgAngleIndicator.childNodes[0].nodeValue = (-1*this._angleOfRotation).toString() + '°';
        
         }
@@ -398,10 +398,10 @@ export class SetSquare extends BaseRuler implements IDispose{
         let angle = Math.PI * this._angleOfRotation / 180;
     
         let va_x = Math.cos(angle) * va_tx - Math.sin(angle) * va_ty;
-        let va_y = Math.sign(angle) * va_tx + Math.cos(angle) * va_ty;
+        let va_y = Math.sin(angle) * va_tx + Math.cos(angle) * va_ty;
     
         let vc_x = Math.cos(angle) * vc_tx - Math.sin(angle) * vc_ty;
-        let vc_y = Math.sign(angle) * vc_tx + Math.cos(angle) * vc_ty;
+        let vc_y = Math.sin(angle) * vc_tx + Math.cos(angle) * vc_ty;
     
         if (this._angleOfRotation === -45 || this._angleOfRotation === 135 || this._angleOfRotation === 315 || this._angleOfRotation === -225) {
             return Math.abs(p_ty - va_y);
@@ -435,10 +435,10 @@ export class SetSquare extends BaseRuler implements IDispose{
     
         let angle = Math.PI * this._angleOfRotation / 180;
         let va_x = Math.cos(angle) * va_tx - Math.sin(angle) * va_ty;
-        let va_y = Math.sign(angle) * va_tx + Math.cos(angle) * va_ty;
+        let va_y = Math.sin(angle) * va_tx + Math.cos(angle) * va_ty;
     
         let vb_x = Math.cos(angle) * vb_tx - Math.sin(angle) * vb_ty;
-        let vb_y = Math.sign(angle) * vb_tx + Math.cos(angle) * vb_ty;
+        let vb_y = Math.sin(angle) * vb_tx + Math.cos(angle) * vb_ty;
     
         let slope = 0;
         let p_slope = 0;

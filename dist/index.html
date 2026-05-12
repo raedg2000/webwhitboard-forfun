@@ -13,7 +13,7 @@
 
     <dialog id="aboutDialog">
         <form method="dialog">
-            <h2>Whiteboard For Fun - Version : 0.01</h2>
+            <h2>Whiteboard For Fun - Version : 0.02</h2>
             <br>
             <p>
                 I developed the site for fun. I designed it to work on PCs using a mouse or a touchpad. 
@@ -32,8 +32,8 @@
                 <p>Feel free to contact me on Linkedin.</p>
             </p>
 
-            <divs style="display: flex; align-items: center;justify-content: center;">
-                <button id="okBtn" value="Ok">OK</button>
+            <div style="display: flex; align-items: center;justify-content: center;">
+                <button id="okBtn" type="submit" value="Ok">OK</button>
             </div>
         </form>
     </dialog>
@@ -44,8 +44,8 @@
                 Would you like to save the file before open a new file?
             </p>
             <div style="display: flex; align-items: center;justify-content: center;">
-                <button id="noBtn" value="No" style="margin: 10px;">No</button>
-                <button id="yesBtn" value="Yes" style="margin: 10px;">Yes</button>
+                <button id="noBtn" type="submit" value="No" style="margin: 10px;">No</button>
+                <button id="yesBtn" type="submit" value="Yes" style="margin: 10px;">Yes</button>
             </div>
         </form>
     </dialog>
@@ -56,8 +56,8 @@
                Are you sure you want to clear the whiteboard?
             </p>
             <div style="display: flex; align-items: center;justify-content: center;">
-                <button id="noBtn" value="No" style="margin: 10px;">No</button>
-                <button id="yesBtn" value="Yes" style="margin: 10px;">Yes</button>
+                <button id="noBtn" type="submit" value="No" style="margin: 10px;">No</button>
+                <button id="yesBtn" type="submit" value="Yes" style="margin: 10px;">Yes</button>
             </div>
         </form>
     </dialog>
@@ -437,7 +437,7 @@
         <canvas id="whiteboard_canvas#1" width="10000" height="10000" class="drawingLayer"></canvas>
     </div>
 
-    <script type="module" src="bundle.js"></script>
+    <script src="bundle.js"></script>
 </body>
 
 </html>

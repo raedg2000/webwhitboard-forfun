@@ -151,7 +151,7 @@ export class Protractor extends BaseRuler implements IDispose{
             
             this._svgRulerInstance.style.transformBox = 'fill-box';
             this._svgRulerInstance.style.transformOrigin ='center';
-            this._svgRulerInstance.style.transform = `rotate(${this._angleOfRotation}deg`;
+            this._svgRulerInstance.style.transform = `rotate(${this._angleOfRotation}deg)`;
         });
     }
 
@@ -283,7 +283,7 @@ export class Protractor extends BaseRuler implements IDispose{
 
         this._svgRulerInstance.style.transformBox = 'fill-box';
         this._svgRulerInstance.style.transformOrigin ='center';
-        this._svgRulerInstance.style.transform = `rotate(${this._angleOfRotation}deg`;
+        this._svgRulerInstance.style.transform = `rotate(${this._angleOfRotation}deg)`;
 
         this.touchFingure2 = pointerEvent;
     }
